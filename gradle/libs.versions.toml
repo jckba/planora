@@ -1,0 +1,45 @@
+[versions]
+java = "21"
+spring-boot = "4.1.0"
+mapstruct = "1.6.3"
+jooq = "3.21.6"
+flyway= "13.1.0"
+postgresql = "42.7.8"
+jjwt = "0.13.0"
+lombok = "1.18.44"
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+
+jooq = { id = "org.jooq.jooq-codegen-gradle", version.ref = "jooq" }
+
+[libraries]
+# ---------- Spring ----------
+spring-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
+spring-jdbc = { module = "org.springframework.boot:spring-boot-starter-jdbc" }
+spring-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-flyway = { module = "org.springframework.boot:spring-boot-starter-flyway" }
+spring-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+spring-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok"}
+
+# ---------- Database ----------
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+
+
+flyway-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
+
+jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
+spring-jooq = { module = "org.springframework.boot:spring-boot-starter-jooq" }
+# ---------- Mapping ----------
+mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
+
+# ---------- Security ----------
+jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
+
+jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
+
+jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwt" }
+
+[bundles]

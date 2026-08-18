@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: planora-backend
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+  flyway:
+    enabled: true
+    schemas:
+      - planora
+    default-schema: planora
+
+#debug: true
