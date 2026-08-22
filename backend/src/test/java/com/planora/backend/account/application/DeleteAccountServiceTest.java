@@ -1,6 +1,6 @@
 package com.planora.backend.account.application;
 
-import com.planora.backend.account.application.update.DeleteAccountService;
+import com.planora.backend.account.application.delete.DeleteAccountService;
 import com.planora.backend.account.domain.Account;
 import com.planora.backend.account.repository.AccountRepository;
 import com.planora.backend.common.exception.ResourceNotFoundException;

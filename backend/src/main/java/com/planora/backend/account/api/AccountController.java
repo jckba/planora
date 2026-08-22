@@ -7,7 +7,7 @@ import com.planora.backend.account.application.create.CreateAccountCommand;
 import com.planora.backend.account.application.create.CreateAccountUseCase;
 import com.planora.backend.account.application.get.GetAccountByIdUseCase;
 import com.planora.backend.account.application.get.GetAccountsUseCase;
-import com.planora.backend.account.application.update.DeleteAccountUseCase;
+import com.planora.backend.account.application.delete.DeleteAccountUseCase;
 import com.planora.backend.account.application.update.UpdateAccountCommand;
 import com.planora.backend.account.application.update.UpdateAccountUseCase;
 import com.planora.backend.account.domain.Account;

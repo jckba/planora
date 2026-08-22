@@ -4,11 +4,12 @@ import com.planora.backend.account.application.create.CreateAccountCommand;
 import com.planora.backend.account.application.create.CreateAccountUseCase;
 import com.planora.backend.account.application.get.GetAccountByIdUseCase;
 import com.planora.backend.account.application.get.GetAccountsUseCase;
-import com.planora.backend.account.application.update.DeleteAccountUseCase;
+import com.planora.backend.account.application.delete.DeleteAccountUseCase;
 import com.planora.backend.account.application.update.UpdateAccountCommand;
 import com.planora.backend.account.application.update.UpdateAccountUseCase;
 import com.planora.backend.account.domain.Account;
 import com.planora.backend.common.api.GlobalExceptionHandler;
+import com.planora.backend.common.exception.InvalidAccountReferenceException;
 import com.planora.backend.common.exception.OptimisticLockException;
 import com.planora.backend.common.exception.ResourceNotFoundException;
 import com.planora.backend.common.pagination.PageRequest;
@@ -485,6 +486,96 @@ class AccountControllerTest {
 
         verify(deleteAccountUseCase)
             .execute(userId, accountId);
+    }
+
+    @Test
+    void shouldReturn400WhenAccountTypeDoesNotExist()
+        throws Exception {
+
+        UUID userId = UUID.randomUUID();
+
+        when(
+            createAccountUseCase.execute(
+                eq(userId),
+                any(CreateAccountCommand.class)
+            )
+        ).thenThrow(
+            new InvalidAccountReferenceException(
+                "Account type not found"
+            )
+        );
+
+        mockMvc.perform(
+                post("/api/accounts")
+                    .param("userId", userId.toString())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                {
+                    "accountTypeId": 99,
+                    "currencyId": 1,
+                    "name": "My Account"
+                }
+                """)
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(
+                jsonPath("$.code")
+                    .value("INVALID_ACCOUNT_REFERENCE")
+            )
+            .andExpect(
+                jsonPath("$.message")
+                    .value("Account type not found")
+            );
+    }
+
+    @Test
+    void shouldReturn400WhenCurrencyDoesNotExist()
+        throws Exception {
+
+        UUID userId = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+
+        UpdateAccountCommand command =
+            new UpdateAccountCommand(
+                userId,
+                accountId,
+                (short) 1,
+                (short) 99,
+                "Updated Account"
+            );
+
+        when(
+            updateAccountUseCase.execute(command)
+        ).thenThrow(
+            new InvalidAccountReferenceException(
+                "Currency not found"
+            )
+        );
+
+        mockMvc.perform(
+                put("/api/accounts/{accountId}", accountId)
+                    .param("userId", userId.toString())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                {
+                    "accountTypeId": 1,
+                    "currencyId": 99,
+                    "name": "Updated Account"
+                }
+                """)
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(
+                jsonPath("$.code")
+                    .value("INVALID_ACCOUNT_REFERENCE")
+            )
+            .andExpect(
+                jsonPath("$.message")
+                    .value("Currency not found")
+            );
+
+        verify(updateAccountUseCase)
+            .execute(command);
     }
 
 

@@ -1,5 +1,6 @@
 package com.planora.backend.common.api;
 
+import com.planora.backend.common.exception.InvalidAccountReferenceException;
 import com.planora.backend.common.exception.OptimisticLockException;
 import com.planora.backend.common.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -56,6 +57,18 @@ public class GlobalExceptionHandler {
     ) {
         return new ErrorResponse(
             "OPTIMISTIC_LOCK",
+            exception.getMessage(),
+            List.of()
+        );
+    }
+
+    @ExceptionHandler(InvalidAccountReferenceException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInvalidAccountReference(
+        InvalidAccountReferenceException exception
+    ) {
+        return new ErrorResponse(
+            "INVALID_ACCOUNT_REFERENCE",
             exception.getMessage(),
             List.of()
         );

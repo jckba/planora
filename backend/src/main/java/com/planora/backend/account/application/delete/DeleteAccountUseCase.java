@@ -1,4 +1,4 @@
-package com.planora.backend.account.application.update;
+package com.planora.backend.account.application.delete;
 
 import java.util.UUID;
 

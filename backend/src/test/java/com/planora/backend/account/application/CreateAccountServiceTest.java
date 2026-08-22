@@ -4,6 +4,7 @@ import com.planora.backend.account.application.create.CreateAccountCommand;
 import com.planora.backend.account.application.create.CreateAccountService;
 import com.planora.backend.account.domain.Account;
 import com.planora.backend.account.repository.AccountRepository;
+import com.planora.backend.common.exception.InvalidAccountReferenceException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -16,15 +17,17 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CreateAccountServiceTest {
 
     @Mock
     private AccountRepository accountRepository;
+
+    @Mock
+    private AccountReferenceValidator accountReferenceValidator;
+
     @InjectMocks
     private CreateAccountService createAccountService;
 
@@ -102,6 +105,35 @@ class CreateAccountServiceTest {
         );
 
         verifyNoInteractions(accountRepository);
+    }
+
+    @Test
+    void shouldRejectUnknownAccountType() {
+        UUID userId = UUID.randomUUID();
+
+        CreateAccountCommand command =
+            new CreateAccountCommand(
+                userId,
+                (short) 99,
+                (short) 1,
+                "My Account"
+            );
+
+        doThrow(
+            new InvalidAccountReferenceException(
+                "Account type not found"
+            )
+        )
+            .when(accountReferenceValidator)
+            .validate((short) 99, (short) 1);
+
+        assertThrows(
+            InvalidAccountReferenceException.class,
+            () -> createAccountService.execute(userId, command)
+        );
+
+        verify(accountRepository, never())
+            .save(any(Account.class));
     }
 
 
