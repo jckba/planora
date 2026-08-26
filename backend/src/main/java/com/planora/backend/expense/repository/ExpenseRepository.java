@@ -11,7 +11,13 @@ public interface ExpenseRepository {
 
     Expense save(Expense expense);
 
+    Expense update(Expense expense);
+
+    void delete(Expense expense);
+
     Optional<Expense> findById(UUID id);
+
+    Optional<Expense> findByIdAndUserId(UUID id, UUID userId);
 
     PageResult<Expense> findByUserId(UUID userId, PageRequest pageRequest);
 }

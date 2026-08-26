@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ExpenseTest {
+class ExpenseTest {
 
     // Create test
 
@@ -66,6 +66,7 @@ public class ExpenseTest {
             expense.getTitle()
         );
     }
+
     @Test
     void shouldNormalizeDescriptionWhitespace() {
         Expense expense = Expense.create(
@@ -247,6 +248,105 @@ public class ExpenseTest {
                 new BigDecimal("25.50"),
                 null
             )
+        );
+    }
+
+    @Test
+    void shouldRejectInvalidAmountWhenUpdating() {
+        Expense expense = Expense.create(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            "Lunch",
+            null,
+            new BigDecimal("25.50"),
+            Instant.now()
+        );
+
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> expense.update(
+                expense.getAccountId(),
+                expense.getCategoryId(),
+                "Dinner",
+                null,
+                BigDecimal.ZERO,
+                Instant.now()
+            )
+        );
+    }
+
+    @Test
+    void shouldNormalizeFieldsWhenUpdating() {
+        Expense expense = Expense.create(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            "Lunch",
+            null,
+            new BigDecimal("25.50"),
+            Instant.now()
+        );
+
+        expense.update(
+            expense.getAccountId(),
+            expense.getCategoryId(),
+            "  Dinner   at   restaurant  ",
+            "  Dinner   with   friends  ",
+            new BigDecimal("40.00"),
+            Instant.now()
+        );
+
+        assertEquals(
+            "Dinner at restaurant",
+            expense.getTitle()
+        );
+
+        assertEquals(
+            "Dinner with friends",
+            expense.getDescription()
+        );
+    }
+
+    @Test
+    void shouldSoftDeleteExpense() {
+        Expense expense = Expense.create(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            "Lunch",
+            null,
+            new BigDecimal("25.50"),
+            Instant.now()
+        );
+
+        Instant previousUpdatedAt =
+            expense.getUpdatedAt();
+
+        expense.delete();
+
+        assertNotNull(expense.getDeletedAt());
+        assertFalse(expense.getUpdatedAt()
+            .isBefore(previousUpdatedAt));
+    }
+
+    @Test
+    void shouldRejectDeletingAlreadyDeletedExpense() {
+        Expense expense = Expense.create(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            "Lunch",
+            null,
+            new BigDecimal("25.50"),
+            Instant.now()
+        );
+
+        expense.delete();
+
+        assertThrows(
+            IllegalStateException.class,
+            expense::delete
         );
     }
 

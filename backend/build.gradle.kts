@@ -44,7 +44,6 @@ jooq {
                 includes = ".*"
                 excludes = "flyway_schema_history"
 
-                isTableValuedFunctions = false
 
                 forcedTypes {
                     forcedType {

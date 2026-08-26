@@ -22,6 +22,7 @@ public class Expense {
     private Instant expenseDate;
     private Instant createdAt;
     private Instant updatedAt;
+    private Instant deletedAt;
     private Integer version;
 
     private Expense(
@@ -35,6 +36,7 @@ public class Expense {
         Instant expenseDate,
         Instant createdAt,
         Instant updatedAt,
+        Instant deletedAt,
         Integer version
     ) {
         this.id = id;
@@ -47,6 +49,7 @@ public class Expense {
         this.expenseDate = expenseDate;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.deletedAt = deletedAt;
         this.version = version;
     }
 
@@ -86,6 +89,7 @@ public class Expense {
             expenseDate,
             now,
             now,
+            null,
             0
         );
     }
@@ -101,6 +105,7 @@ public class Expense {
         Instant expenseDate,
         Instant createdAt,
         Instant updatedAt,
+        Instant deletedAt,
         Integer version
     ) {
         return new Expense(
@@ -114,8 +119,51 @@ public class Expense {
             expenseDate,
             createdAt,
             updatedAt,
+            deletedAt,
             version
         );
+    }
+
+    public void update(
+        UUID accountId,
+        UUID categoryId,
+        String title,
+        String description,
+        BigDecimal amount,
+        Instant expenseDate
+    ) {
+        Objects.requireNonNull(accountId, "Account ID cannot be null");
+        Objects.requireNonNull(categoryId, "Category ID cannot be null");
+        Objects.requireNonNull(title, "Title cannot be null");
+        Objects.requireNonNull(amount, "Amount cannot be null");
+        Objects.requireNonNull(expenseDate, "Expense date cannot be null");
+
+        String normalizedTitle = normalizeRequiredText(title);
+
+        String normalizedDescription = normalizeOptionalText(description);
+
+        if (amount.signum() <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than zero");
+        }
+
+        this.setAccountId(accountId);
+        this.setCategoryId(categoryId);
+        this.setTitle(normalizedTitle);
+        this.setDescription(normalizedDescription);
+        this.setAmount(amount);
+        this.setExpenseDate(expenseDate);
+
+    }
+
+    public void delete() {
+        if (this.deletedAt != null) {
+            throw new IllegalStateException("Expense is already deleted");
+        }
+
+        Instant now = Instant.now();
+
+        this.deletedAt = now;
+        this.updatedAt = now;
     }
 
     private static String normalizeRequiredText(String value) {

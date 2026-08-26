@@ -1,6 +1,7 @@
 package com.planora.backend.common.api;
 
 import com.planora.backend.common.exception.InvalidAccountReferenceException;
+import com.planora.backend.common.exception.InvalidExpenseReferenceException;
 import com.planora.backend.common.exception.OptimisticLockException;
 import com.planora.backend.common.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -73,5 +74,18 @@ public class GlobalExceptionHandler {
             List.of()
         );
     }
+
+    @ExceptionHandler(InvalidExpenseReferenceException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleInvalidExpenseReference(
+        InvalidExpenseReferenceException exception
+    ) {
+        return new ErrorResponse(
+            "INVALID_EXPENSE_REFERENCE",
+            exception.getMessage(),
+            List.of()
+        );
+    }
+
 
 }

@@ -369,9 +369,4 @@ public class CategoryControllerTest {
         verify(deleteCategoryUseCase)
             .execute(userId, categoryId);
     }
-
-
-
-
-
 }

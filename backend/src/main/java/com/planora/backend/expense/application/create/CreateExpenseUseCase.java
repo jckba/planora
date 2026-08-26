@@ -1,4 +1,4 @@
-package com.planora.backend.expense.application;
+package com.planora.backend.expense.application.create;
 
 import com.planora.backend.expense.domain.Expense;
 

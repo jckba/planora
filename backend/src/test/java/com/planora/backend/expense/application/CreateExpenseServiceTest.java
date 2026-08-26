@@ -1,7 +1,8 @@
 package com.planora.backend.expense.application;
 
-import com.planora.backend.account.repository.AccountRepository;
-import com.planora.backend.category.repository.CategoryRepository;
+import com.planora.backend.common.exception.InvalidExpenseReferenceException;
+import com.planora.backend.expense.application.create.CreateExpenseCommand;
+import com.planora.backend.expense.application.create.CreateExpenseService;
 import com.planora.backend.expense.domain.Expense;
 import com.planora.backend.expense.repository.ExpenseRepository;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,9 @@ public class CreateExpenseServiceTest {
 
     @Mock
     private ExpenseRepository expenseRepository;
+
+    @Mock
+    private ExpenseReferenceValidator expenseReferenceValidator;
 
     @InjectMocks
     private CreateExpenseService createExpenseService;
@@ -54,6 +58,15 @@ public class CreateExpenseServiceTest {
             expenseDate
         );
 
+        doNothing()
+            .when(expenseReferenceValidator)
+            .validate(
+                userId,
+                accountId,
+                categoryId
+            );
+
+
         when(expenseRepository.save(any(Expense.class)))
             .thenReturn(savedExpense);
         Expense result = createExpenseService.execute(userId, command);
@@ -63,6 +76,12 @@ public class CreateExpenseServiceTest {
         ArgumentCaptor<Expense> captor = ArgumentCaptor.forClass(Expense.class);
 
         verify(expenseRepository).save(captor.capture());
+        verify(expenseReferenceValidator)
+            .validate(
+                userId,
+                accountId,
+                categoryId
+            );
 
         Expense createdExpense = captor.getValue();
 
@@ -96,6 +115,52 @@ public class CreateExpenseServiceTest {
             IllegalArgumentException.class,
             () -> createExpenseService.execute(userId, command)
         );
+
+        verifyNoInteractions(expenseRepository);
+    }
+
+    @Test
+    void shouldRejectInvalidReferences() {
+        UUID userId = UUID.randomUUID();
+        UUID accountId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
+
+        CreateExpenseCommand command =
+            new CreateExpenseCommand(
+                accountId,
+                categoryId,
+                "Lunch",
+                "Lunch at restaurant",
+                new BigDecimal("25.50"),
+                Instant.now()
+            );
+
+        doThrow(
+            new InvalidExpenseReferenceException(
+                "Account not found"
+            )
+        )
+            .when(expenseReferenceValidator)
+            .validate(
+                userId,
+                accountId,
+                categoryId
+            );
+
+        assertThrows(
+            InvalidExpenseReferenceException.class,
+            () -> createExpenseService.execute(
+                userId,
+                command
+            )
+        );
+
+        verify(expenseReferenceValidator)
+            .validate(
+                userId,
+                accountId,
+                categoryId
+            );
 
         verifyNoInteractions(expenseRepository);
     }

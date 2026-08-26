@@ -20,6 +20,8 @@ CREATE TABLE expense
 
     updated_at TIMESTAMPTZ NOT NULL,
 
+    deleted_at TIMESTAMPTZ,
+
     version INTEGER NOT NULL,
 
     CONSTRAINT fk_expense_user
@@ -44,8 +46,9 @@ CREATE TABLE expense
         CHECK (amount > 0)
 );
 
-CREATE INDEX idx_expense_user
-    ON expense(user_id);
+CREATE INDEX idx_expense_user_active
+    ON expense(user_id)
+    WHERE deleted_at IS NULL;
 
 CREATE INDEX idx_expense_account
     ON expense(account_id);
@@ -61,3 +64,6 @@ COMMENT ON TABLE expense IS
 
 COMMENT ON COLUMN expense.expense_date IS
 'Date and time when the expense occurred.';
+
+COMMENT ON COLUMN expense.deleted_at IS
+'Timestamp when the expense was soft deleted. NULL means the expense is active.';

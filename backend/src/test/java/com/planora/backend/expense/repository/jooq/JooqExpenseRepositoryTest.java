@@ -1,5 +1,6 @@
 package com.planora.backend.expense.repository.jooq;
 
+import com.planora.backend.common.exception.OptimisticLockException;
 import com.planora.backend.common.pagination.PageRequest;
 import com.planora.backend.common.pagination.PageResult;
 import com.planora.backend.expense.domain.Expense;
@@ -159,6 +160,108 @@ public class JooqExpenseRepositoryTest {
 
     @Test
     @Transactional
+    void shouldUpdateExpense() {
+        UUID userId = createUserForTest();
+        UUID accountId = createAccountForTest(userId);
+        UUID categoryId = createCategoryForTest(userId);
+
+        Expense expense = createExpenseForTest(
+            userId,
+            accountId,
+            categoryId,
+            Instant.parse("2026-08-10T12:00:00Z")
+        );
+
+        expense.update(
+            accountId,
+            categoryId,
+            "Dinner",
+            "Dinner at restaurant",
+            new BigDecimal("40.00"),
+            Instant.parse("2026-08-11T19:00:00Z")
+        );
+
+        Expense updated =
+            expenseRepository.update(expense);
+
+        assertSame(expense, updated);
+
+        assertEquals(1, updated.getVersion());
+
+        ExpenseRecord record = dsl.selectFrom(EXPENSE)
+            .where(EXPENSE.ID.eq(expense.getId()))
+            .fetchOne();
+
+        assertNotNull(record);
+
+        assertEquals(
+            "Dinner",
+            record.getTitle()
+        );
+
+        assertEquals(
+            "Dinner at restaurant",
+            record.getDescription()
+        );
+
+        assertEquals(
+            0,
+            new BigDecimal("40.00")
+                .compareTo(record.getAmount())
+        );
+
+        assertEquals(
+            1,
+            record.getVersion()
+        );
+
+        assertInstantEquals(
+            updated.getExpenseDate(),
+            record.getExpenseDate().toInstant()
+        );
+
+        assertInstantEquals(
+            updated.getUpdatedAt(),
+            record.getUpdatedAt().toInstant()
+        );
+    }
+
+    @Test
+    @Transactional
+    void shouldRejectUpdateWhenVersionIsStale() {
+        UUID userId = createUserForTest();
+        UUID accountId = createAccountForTest(userId);
+        UUID categoryId = createCategoryForTest(userId);
+
+        Expense expense = createExpenseForTest(
+            userId,
+            accountId,
+            categoryId,
+            Instant.parse("2026-08-10T12:00:00Z")
+        );
+
+        expense.update(
+            accountId,
+            categoryId,
+            "Dinner",
+            null,
+            new BigDecimal("40.00"),
+            Instant.parse("2026-08-11T19:00:00Z")
+        );
+
+        dsl.update(EXPENSE)
+            .set(EXPENSE.VERSION, 1)
+            .where(EXPENSE.ID.eq(expense.getId()))
+            .execute();
+
+        assertThrows(
+            OptimisticLockException.class,
+            () -> expenseRepository.update(expense)
+        );
+    }
+
+    @Test
+    @Transactional
     void shouldFindExpenseById() {
         UUID userId = createUserForTest();
         UUID accountId = createAccountForTest(userId);
@@ -298,6 +401,165 @@ public class JooqExpenseRepositoryTest {
     }
 
     @Test
+    @Transactional
+    void shouldSoftDeleteExpense() {
+        UUID userId = createUserForTest();
+        UUID accountId = createAccountForTest(userId);
+        UUID categoryId = createCategoryForTest(userId);
+
+        Expense expense = createExpenseForTest(
+            userId,
+            accountId,
+            categoryId,
+            Instant.parse("2026-08-10T12:00:00Z")
+        );
+
+        int originalVersion =
+            expense.getVersion();
+
+        expense.delete();
+
+        expenseRepository.delete(expense);
+
+        ExpenseRecord record = dsl.selectFrom(EXPENSE)
+            .where(
+                EXPENSE.ID.eq(expense.getId())
+            )
+            .fetchOne();
+
+        assertNotNull(record);
+        assertNotNull(record.getDeletedAt());
+
+        assertEquals(
+            originalVersion + 1,
+            record.getVersion()
+        );
+
+        assertEquals(
+            expense.getVersion(),
+            record.getVersion()
+        );
+
+        assertInstantEquals(
+            expense.getDeletedAt(),
+            record.getDeletedAt().toInstant()
+        );
+    }
+
+    @Test
+    @Transactional
+    void shouldNotFindSoftDeletedExpense() {
+        UUID userId = createUserForTest();
+        UUID accountId = createAccountForTest(userId);
+        UUID categoryId = createCategoryForTest(userId);
+
+        Expense expense = createExpenseForTest(
+            userId,
+            accountId,
+            categoryId,
+            Instant.parse("2026-08-10T12:00:00Z")
+        );
+
+        expense.delete();
+
+        expenseRepository.delete(expense);
+
+        Optional<Expense> result =
+            expenseRepository.findByIdAndUserId(
+                expense.getId(),
+                userId
+            );
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @Transactional
+    void shouldExcludeSoftDeletedExpensesFromUserPage() {
+        UUID userId = createUserForTest();
+        UUID accountId = createAccountForTest(userId);
+        UUID categoryId = createCategoryForTest(userId);
+
+        Expense activeExpense = createExpenseForTest(
+            userId,
+            accountId,
+            categoryId,
+            Instant.parse("2026-08-10T12:00:00Z")
+        );
+
+        Expense deletedExpense = createExpenseForTest(
+            userId,
+            accountId,
+            categoryId,
+            Instant.parse("2026-08-11T12:00:00Z")
+        );
+
+        deletedExpense.delete();
+        expenseRepository.delete(deletedExpense);
+
+        PageResult<Expense> result =
+            expenseRepository.findByUserId(
+                userId,
+                new PageRequest(0, 10)
+            );
+
+        assertEquals(1, result.totalElements());
+        assertEquals(1, result.content().size());
+        assertEquals(
+            activeExpense.getId(),
+            result.content().getFirst().getId()
+        );
+    }
+
+    @Test
+    @Transactional
+    void shouldCountOnlyActiveExpenses() {
+        UUID userId = createUserForTest();
+        UUID accountId = createAccountForTest(userId);
+        UUID categoryId = createCategoryForTest(userId);
+
+        Expense activeExpense = createExpenseForTest(
+            userId,
+            accountId,
+            categoryId,
+            Instant.parse("2026-08-10T10:00:00Z")
+        );
+
+        Expense deletedExpense1 = createExpenseForTest(
+            userId,
+            accountId,
+            categoryId,
+            Instant.parse("2026-08-11T10:00:00Z")
+        );
+
+        Expense deletedExpense2 = createExpenseForTest(
+            userId,
+            accountId,
+            categoryId,
+            Instant.parse("2026-08-12T10:00:00Z")
+        );
+
+        deletedExpense1.delete();
+        expenseRepository.delete(deletedExpense1);
+
+        deletedExpense2.delete();
+        expenseRepository.delete(deletedExpense2);
+
+        PageResult<Expense> result =
+            expenseRepository.findByUserId(
+                userId,
+                new PageRequest(0, 10)
+            );
+
+        assertEquals(1, result.totalElements());
+        assertEquals(1, result.content().size());
+        assertEquals(
+            activeExpense.getId(),
+            result.content().getFirst().getId()
+        );
+    }
+
+    @Test
     void shouldRejectInvalidPageRequest() {
         assertThrows(
             IllegalArgumentException.class,
@@ -314,7 +576,5 @@ public class JooqExpenseRepositoryTest {
             () -> new PageRequest(0, -1)
         );
     }
-
-
 
 }

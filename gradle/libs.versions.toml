@@ -10,7 +10,6 @@ lombok = "1.18.44"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
-
 jooq = { id = "org.jooq.jooq-codegen-gradle", version.ref = "jooq" }
 
 [libraries]

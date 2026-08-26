@@ -1,10 +1,10 @@
-package com.planora.backend.expense.application;
+package com.planora.backend.expense.api.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
-public record CreateExpenseCommand(
+public record UpdateExpenseRequest(
     UUID accountId,
     UUID categoryId,
     String title,
@@ -12,5 +12,4 @@ public record CreateExpenseCommand(
     BigDecimal amount,
     Instant expenseDate
 ) {
-
 }
