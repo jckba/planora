@@ -8,7 +8,7 @@ import com.planora.backend.account.application.delete.DeleteAccountUseCase;
 import com.planora.backend.account.application.update.UpdateAccountCommand;
 import com.planora.backend.account.application.update.UpdateAccountUseCase;
 import com.planora.backend.account.domain.Account;
-import com.planora.backend.common.api.GlobalExceptionHandler;
+import com.planora.backend.common.exception.GlobalExceptionHandler;
 import com.planora.backend.common.exception.InvalidAccountReferenceException;
 import com.planora.backend.common.exception.OptimisticLockException;
 import com.planora.backend.common.exception.ResourceNotFoundException;

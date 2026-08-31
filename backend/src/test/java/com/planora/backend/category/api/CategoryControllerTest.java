@@ -3,7 +3,7 @@ package com.planora.backend.category.api;
 import com.planora.backend.category.api.dto.CreateCategoryRequest;
 import com.planora.backend.category.application.*;
 import com.planora.backend.category.domain.Category;
-import com.planora.backend.common.api.GlobalExceptionHandler;
+import com.planora.backend.common.exception.GlobalExceptionHandler;
 import com.planora.backend.common.exception.ResourceNotFoundException;
 import com.planora.backend.common.pagination.PageRequest;
 import com.planora.backend.common.pagination.PageResult;
@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(CategoryController.class)
 @Import(GlobalExceptionHandler.class)
-public class CategoryControllerTest {
+class CategoryControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

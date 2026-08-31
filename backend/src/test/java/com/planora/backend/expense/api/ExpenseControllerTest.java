@@ -1,6 +1,6 @@
 package com.planora.backend.expense.api;
 
-import com.planora.backend.common.api.GlobalExceptionHandler;
+import com.planora.backend.common.exception.GlobalExceptionHandler;
 import com.planora.backend.common.exception.InvalidExpenseReferenceException;
 import com.planora.backend.common.exception.OptimisticLockException;
 import com.planora.backend.common.exception.ResourceNotFoundException;

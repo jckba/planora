@@ -161,6 +161,4 @@ public class JooqExpenseRepository implements ExpenseRepository {
             record.getVersion()
         );
     }
-
-
 }

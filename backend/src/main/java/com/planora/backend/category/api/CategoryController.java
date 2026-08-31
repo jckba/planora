@@ -60,6 +60,7 @@ public class CategoryController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public CategoryResponse createCategory(
         @RequestParam UUID userId,
         @Valid @RequestBody CreateCategoryRequest request

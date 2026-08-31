@@ -1,0 +1,76 @@
+@baseUrl = http://localhost:8080
+@userId = 00000000-0000-0000-0000-000000000001
+
+### Create Category
+POST {{baseUrl}}/api/categories?userId={{userId}}
+Content-Type: application/json
+
+{
+    "name": "Food",
+    "color": "FF9800",
+    "icon": "restaurant"
+}
+
+### GET BY ID
+GET http://localhost:8080/api/categories/1a870831-837c-4c4e-b654-64d934ace8c9?userId=00000000-0000-0000-0000-000000000001
+
+### GET GATEGORIES
+GET http://localhost:8080/api/categories?userId=00000000-0000-0000-0000-000000000001&page=0&size=10
+
+### UPDATE CATEGORY
+PUT http://localhost:8080/api/categories/1a870831-837c-4c4e-b654-64d934ace8c9?userId=00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+    "name": "Food Updated",
+    "color": "4CAF50",
+    "icon": "shopping_cart"
+}
+
+### DELETE CATEGORY
+DELETE http://localhost:8080/api/categories/834e504e-167d-4562-966b-295861639900
+    ?userId=00000000-0000-0000-0000-000000000001
+
+### Create Account
+POST http://localhost:8080/api/accounts?userId=00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+    "accountTypeId": 1,
+    "currencyId": 1,
+    "name": "Efectivo"
+}
+
+### Create Purchase
+POST http://localhost:8080/api/purchases?userId=00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+    "expectedDate": "2026-09-15T12:00:00Z",
+    "notes": "Compra mensual"
+}
+
+### GET Purchase when id 35763085-5776-4a33-8240-5f66d0d3fb1a
+GET http://localhost:8080/api/purchases/35763085-5776-4a33-8240-5f66d0d3fb1a?userId=00000000-0000-0000-0000-000000000001
+
+### ADD item to purchase
+POST http://localhost:8080/api/purchases/35763085-5776-4a33-8240-5f66d0d3fb1a/items?userId=00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+    "categoryId": "fd9cbb56-c614-41b2-b730-3d5eef9e781a",
+    "name": "Arroz",
+    "quantity": 2,
+    "unitPrice": 5.50
+}
+
+### ADD second item to purchase
+POST http://localhost:8080/api/purchases/35763085-5776-4a33-8240-5f66d0d3fb1a/items?userId=00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+    "categoryId": "fd9cbb56-c614-41b2-b730-3d5eef9e781a",
+    "name": "Leche",
+    "quantity": 3,
+    "unitPrice": 4.00
+}

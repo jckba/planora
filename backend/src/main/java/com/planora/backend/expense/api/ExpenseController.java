@@ -14,6 +14,7 @@ import com.planora.backend.expense.application.get.GetExpensesUseCase;
 import com.planora.backend.expense.application.update.UpdateExpenseCommand;
 import com.planora.backend.expense.application.update.UpdateExpenseUseCase;
 import com.planora.backend.expense.domain.Expense;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,7 +73,7 @@ public class ExpenseController {
     @ResponseStatus(HttpStatus.CREATED)
     public ExpenseResponse createExpense(
         @RequestParam UUID userId,
-        @RequestBody CreateExpenseRequest request
+        @Valid @RequestBody CreateExpenseRequest request
     ) {
         CreateExpenseCommand command = new CreateExpenseCommand(
             request.accountId(),
@@ -92,7 +93,7 @@ public class ExpenseController {
     public ExpenseResponse updateExpense(
         @RequestParam UUID userId,
         @PathVariable UUID expenseId,
-        @RequestBody UpdateExpenseRequest request
+        @Valid @RequestBody UpdateExpenseRequest request
     ) {
         UpdateExpenseCommand command = new UpdateExpenseCommand(
             userId,
@@ -120,6 +121,4 @@ public class ExpenseController {
             userId, expenseId
         );
     }
-
-
 }

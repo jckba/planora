@@ -1,11 +1,18 @@
 import java.io.File
 
+buildscript {
+    dependencies {
+        classpath(libs.flyway.postgresql)
+    }
+}
+
 plugins {
     java
     application
 
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.jooq)
+    alias(libs.plugins.flyway)
 }
 
 java {
@@ -27,6 +34,16 @@ fun env(name: String): String =
     System.getenv(name)
         ?: envProperties[name]
         ?: error("Environment variable $name is not set")
+
+flyway {
+    url = "jdbc:postgresql://${env("POSTGRES_HOST")}:${env("POSTGRES_PORT")}/${env("POSTGRES_DB")}"
+    user = env("POSTGRES_USER")
+    password = env("POSTGRES_PASSWORD")
+    schemas = arrayOf("planora")
+    locations = arrayOf(
+        "filesystem:${rootProject.projectDir}/database/src/main/resources/db/migration"
+    )
+}
 
 jooq {
     configuration {
@@ -110,6 +127,10 @@ dependencies {
         isTransitive = false
     }
 
+}
+
+tasks.named("jooqCodegen") {
+    dependsOn(tasks.named("flywayMigrate"))
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {

@@ -1,6 +1,7 @@
 package com.planora.backend.purchase.domain;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -10,6 +11,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Getter
+@Setter
 public class Purchase {
     private UUID id;
     private UUID userId;

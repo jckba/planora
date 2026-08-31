@@ -1,9 +1,7 @@
-package com.planora.backend.common.api;
+package com.planora.backend.common.exception;
 
-import com.planora.backend.common.exception.InvalidAccountReferenceException;
-import com.planora.backend.common.exception.InvalidExpenseReferenceException;
-import com.planora.backend.common.exception.OptimisticLockException;
-import com.planora.backend.common.exception.ResourceNotFoundException;
+import com.planora.backend.common.api.ErrorResponse;
+import com.planora.backend.common.api.ValidationError;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -82,6 +80,18 @@ public class GlobalExceptionHandler {
     ) {
         return new ErrorResponse(
             "INVALID_EXPENSE_REFERENCE",
+            exception.getMessage(),
+            List.of()
+        );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalArgument(
+        IllegalArgumentException exception
+    ) {
+        return new ErrorResponse(
+            "INVALID_ARGUMENT",
             exception.getMessage(),
             List.of()
         );

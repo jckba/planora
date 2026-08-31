@@ -145,13 +145,13 @@ public class Expense {
         if (amount.signum() <= 0) {
             throw new IllegalArgumentException("Amount must be greater than zero");
         }
-
         this.setAccountId(accountId);
         this.setCategoryId(categoryId);
         this.setTitle(normalizedTitle);
         this.setDescription(normalizedDescription);
         this.setAmount(amount);
         this.setExpenseDate(expenseDate);
+        this.updatedAt = Instant.now();
 
     }
 

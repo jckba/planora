@@ -12,5 +12,4 @@ public record CreateExpenseCommand(
     BigDecimal amount,
     Instant expenseDate
 ) {
-
 }
