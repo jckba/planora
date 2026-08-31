@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="planora@localhost" uuid="1bb3593c-11eb-4872-976a-56a9f1b2c3ed">
+    <data-source source="LOCAL" name="planora@localhost" uuid="bb289cf3-692f-4c07-a531-f8b2bffed88b">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>

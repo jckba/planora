@@ -18,7 +18,9 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.planora.persistence.jooq.tables.Purchase.PURCHASE;
 import static com.planora.persistence.jooq.tables.PurchaseItem.PURCHASE_ITEM;
@@ -279,6 +281,10 @@ public class JooqPurchaseRepository implements PurchaseRepository {
     @Override
     @Transactional
     public Purchase update(Purchase purchase) {
+
+        int currentVersion = purchase.getVersion();
+        int newVersion = currentVersion + 1;
+
         int updatedRows =
             dsl.update(PURCHASE)
                 .set(
@@ -320,7 +326,7 @@ public class JooqPurchaseRepository implements PurchaseRepository {
                 )
                 .set(
                     PURCHASE.VERSION,
-                    purchase.getVersion() + 1
+                    newVersion
                 )
                 .where(
                     PURCHASE.ID.eq(purchase.getId())
@@ -330,9 +336,7 @@ public class JooqPurchaseRepository implements PurchaseRepository {
                             )
                         )
                         .and(
-                            PURCHASE.VERSION.eq(
-                                purchase.getVersion()
-                            )
+                            PURCHASE.VERSION.eq(currentVersion)
                         )
                 )
                 .execute();
@@ -341,6 +345,138 @@ public class JooqPurchaseRepository implements PurchaseRepository {
             throw new OptimisticLockException(
                 "Purchase was modified by another transaction"
             );
+        }
+
+        Set<UUID> itemIds =
+            purchase.getItems()
+                .stream()
+                .map(PurchaseItem::getId)
+                .collect(Collectors.toSet());
+
+        if (itemIds.isEmpty()) {
+            dsl.deleteFrom(PURCHASE_ITEM)
+                .where(
+                    PURCHASE_ITEM.PURCHASE_ID.eq(
+                        purchase.getId()
+                    )
+                )
+                .execute();
+        } else {
+            dsl.deleteFrom(PURCHASE_ITEM)
+                .where(
+                    PURCHASE_ITEM.PURCHASE_ID.eq(
+                            purchase.getId()
+                        )
+                        .and(
+                            PURCHASE_ITEM.ID.notIn(itemIds)
+                        )
+                )
+                .execute();
+        }
+
+        for (PurchaseItem item : purchase.getItems()) {
+            dsl.insertInto(PURCHASE_ITEM)
+                .set(
+                    PURCHASE_ITEM.ID,
+                    item.getId()
+                )
+                .set(
+                    PURCHASE_ITEM.PURCHASE_ID,
+                    purchase.getId()
+                )
+                .set(
+                    PURCHASE_ITEM.CATEGORY_ID,
+                    item.getCategoryId()
+                )
+                .set(
+                    PURCHASE_ITEM.NAME,
+                    item.getName()
+                )
+                .set(
+                    PURCHASE_ITEM.QUANTITY,
+                    item.getQuantity()
+                )
+                .set(
+                    PURCHASE_ITEM.UNIT_PRICE,
+                    item.getUnitPrice()
+                )
+                .onConflict(PURCHASE_ITEM.ID)
+                .doUpdate()
+                .set(
+                    PURCHASE_ITEM.CATEGORY_ID,
+                    item.getCategoryId()
+                )
+                .set(
+                    PURCHASE_ITEM.NAME,
+                    item.getName()
+                )
+                .set(
+                    PURCHASE_ITEM.QUANTITY,
+                    item.getQuantity()
+                )
+                .set(
+                    PURCHASE_ITEM.UNIT_PRICE,
+                    item.getUnitPrice()
+                )
+                .execute();
+        }
+
+        Set<UUID> paymentIds =
+            purchase.getPayments()
+                .stream()
+                .map(PurchasePayment::getId)
+                .collect(Collectors.toSet());
+
+        if (paymentIds.isEmpty()) {
+            dsl.deleteFrom(PURCHASE_PAYMENT)
+                .where(
+                    PURCHASE_PAYMENT.PURCHASE_ID.eq(
+                        purchase.getId()
+                    )
+                )
+                .execute();
+        } else {
+            dsl.deleteFrom(PURCHASE_PAYMENT)
+                .where(
+                    PURCHASE_PAYMENT.PURCHASE_ID.eq(
+                            purchase.getId()
+                        )
+                        .and(
+                            PURCHASE_PAYMENT.ID.notIn(paymentIds)
+                        )
+                )
+                .execute();
+        }
+
+        for (PurchasePayment payment : purchase.getPayments()) {
+            dsl.insertInto(PURCHASE_PAYMENT)
+                .set(
+                    PURCHASE_PAYMENT.ID,
+                    payment.getId()
+                )
+                .set(
+                    PURCHASE_PAYMENT.PURCHASE_ID,
+                    purchase.getId()
+                )
+                .set(
+                    PURCHASE_PAYMENT.ACCOUNT_ID,
+                    payment.getAccountId()
+                )
+                .set(
+                    PURCHASE_PAYMENT.AMOUNT,
+                    payment.getAmount()
+                )
+                .onConflict(PURCHASE_PAYMENT.ID)
+                .doUpdate()
+                .set(
+                    PURCHASE_PAYMENT.ACCOUNT_ID,
+                    payment.getAccountId()
+                )
+                .set(
+                    PURCHASE_PAYMENT.AMOUNT,
+                    payment.getAmount()
+                )
+                .execute();
         }
 
         purchase.incrementVersion();

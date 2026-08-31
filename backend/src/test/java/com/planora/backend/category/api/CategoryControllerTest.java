@@ -203,7 +203,7 @@ class CategoryControllerTest {
                 }
                 """)
             )
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(
                 jsonPath("$.id")
                     .value(category.getId().toString())
