@@ -1,4 +1,4 @@
-package com.planora.backend.category.application;
+package com.planora.backend.category.application.get;
 
 import com.planora.backend.category.domain.Category;
 import com.planora.backend.category.repository.CategoryRepository;

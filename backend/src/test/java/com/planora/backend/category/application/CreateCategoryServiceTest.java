@@ -1,5 +1,7 @@
 package com.planora.backend.category.application;
 
+import com.planora.backend.category.application.create.CreateCategoryCommand;
+import com.planora.backend.category.application.create.CreateCategoryService;
 import com.planora.backend.category.domain.Category;
 import com.planora.backend.category.repository.CategoryRepository;
 import org.junit.jupiter.api.Test;
@@ -45,7 +47,7 @@ public class CreateCategoryServiceTest {
             .thenReturn(savedCategory);
 
         Category result =
-            createCategoryService.execute(userId, command);
+            createCategoryService.execute(command);
 
         assertSame(savedCategory, result);
 
@@ -80,7 +82,7 @@ public class CreateCategoryServiceTest {
 
         assertThrows(
             IllegalArgumentException.class,
-            () -> createCategoryService.execute(userId, command)
+            () -> createCategoryService.execute(command)
         );
 
         verifyNoInteractions(categoryRepository);

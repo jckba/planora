@@ -3,7 +3,13 @@ package com.planora.backend.category.api;
 import com.planora.backend.category.api.dto.CategoryResponse;
 import com.planora.backend.category.api.dto.CreateCategoryRequest;
 import com.planora.backend.category.api.dto.UpdateCategoryRequest;
-import com.planora.backend.category.application.*;
+import com.planora.backend.category.application.create.CreateCategoryCommand;
+import com.planora.backend.category.application.create.CreateCategoryUseCase;
+import com.planora.backend.category.application.delete.DeleteCategoryUseCase;
+import com.planora.backend.category.application.get.GetCategoriesUseCase;
+import com.planora.backend.category.application.get.GetCategoryByIdUseCase;
+import com.planora.backend.category.application.update.UpdateCategoryCommand;
+import com.planora.backend.category.application.update.UpdateCategoryUseCase;
 import com.planora.backend.category.domain.Category;
 import com.planora.backend.common.api.PageResponse;
 import com.planora.backend.common.pagination.PageRequest;
@@ -62,7 +68,6 @@ public class CategoryController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryResponse createCategory(
-        @RequestParam UUID userId,
         @Valid @RequestBody CreateCategoryRequest request
     ) {
         CreateCategoryCommand command = new CreateCategoryCommand(
@@ -71,7 +76,7 @@ public class CategoryController {
             request.icon()
         );
 
-        Category category = createCategoryUseCase.execute(userId, command);
+        Category category = createCategoryUseCase.execute(command);
 
         return toResponse(category);
     }

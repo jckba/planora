@@ -1,5 +1,7 @@
 package com.planora.backend.category.application;
 
+import com.planora.backend.category.application.update.UpdateCategoryCommand;
+import com.planora.backend.category.application.update.UpdateCategoryService;
 import com.planora.backend.category.domain.Category;
 import com.planora.backend.category.repository.CategoryRepository;
 import com.planora.backend.common.exception.ResourceNotFoundException;

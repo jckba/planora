@@ -1,4 +1,4 @@
-package com.planora.backend.category.application;
+package com.planora.backend.category.application.update;
 
 public record UpdateCategoryCommand(
     String name,

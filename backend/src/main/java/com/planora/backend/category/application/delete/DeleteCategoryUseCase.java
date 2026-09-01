@@ -1,4 +1,4 @@
-package com.planora.backend.category.application;
+package com.planora.backend.category.application.delete;
 
 import java.util.UUID;
 

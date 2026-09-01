@@ -109,6 +109,7 @@ dependencies {
 
     implementation(libs.spring.jooq)
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation(libs.spring.security)
 
     jooqCodegen(libs.postgresql)
 

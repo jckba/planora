@@ -1,5 +1,6 @@
 package com.planora.backend.category.application;
 
+import com.planora.backend.category.application.delete.DeleteCategoryService;
 import com.planora.backend.category.domain.Category;
 import com.planora.backend.category.repository.CategoryRepository;
 import com.planora.backend.common.exception.ResourceNotFoundException;
