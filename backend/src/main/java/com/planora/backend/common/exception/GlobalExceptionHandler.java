@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(
             "RESOURCE_NOT_FOUND",
             exception.getMessage(),
-            List.of()
+            null
         );
     }
 
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(
             "OPTIMISTIC_LOCK",
             exception.getMessage(),
-            List.of()
+            null
         );
     }
 
@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(
             "INVALID_ACCOUNT_REFERENCE",
             exception.getMessage(),
-            List.of()
+            null
         );
     }
 
@@ -81,7 +81,7 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(
             "INVALID_EXPENSE_REFERENCE",
             exception.getMessage(),
-            List.of()
+            null
         );
     }
 
@@ -93,7 +93,31 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(
             "INVALID_ARGUMENT",
             exception.getMessage(),
-            List.of()
+            null
+        );
+    }
+
+    @ExceptionHandler(EmailAlreadyInUseException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleEMailAlreadyInUse(
+        EmailAlreadyInUseException exception
+    ) {
+        return new ErrorResponse(
+            "EMAIL_ALREADY_IN_USE",
+            exception.getMessage(),
+            null
+        );
+    }
+
+    @ExceptionHandler(UsernameAlreadyInUseException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleUsernameAlreadyInUse(
+        UsernameAlreadyInUseException exception
+    ) {
+        return new ErrorResponse(
+            "USERNAME_ALREADY_IN_USE",
+            exception.getMessage(),
+            null
         );
     }
 

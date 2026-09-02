@@ -147,3 +147,16 @@ GET http://localhost:8080/api/expenses?userId={{userId}}&page=0&size=10
 
 ### Get purchases page 0
 GET http://localhost:8080/api/purchases?userId={{userId}}&page=0&size=10
+
+### Register User
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+    "username": "test-user",
+    "email": "abc@example.com",
+    "password": "Password123",
+    "firstName": "Test",
+    "lastName": "User",
+    "primaryCurrencyId": 1
+}
