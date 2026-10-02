@@ -262,7 +262,7 @@ public class JooqExpenseRepositoryTest {
 
     @Test
     @Transactional
-    void shouldFindExpenseById() {
+    void shouldFindExpenseByIdForOwner() {
         UUID userId = createUserForTest();
         UUID accountId = createAccountForTest(userId);
         UUID categoryId = createCategoryForTest(userId);
@@ -274,7 +274,10 @@ public class JooqExpenseRepositoryTest {
             Instant.now()
         );
 
-        Optional<Expense> result = expenseRepository.findById(expense.getId());
+        Optional<Expense> result = expenseRepository.findByIdAndUserId(
+            expense.getId(),
+            userId
+        );
 
         assertTrue(result.isPresent());
 
@@ -309,8 +312,11 @@ public class JooqExpenseRepositoryTest {
 
     @Test
     @Transactional
-    void shouldReturnEmptyWhenExpenseDoesNotExist() {
-        Optional<Expense> result = expenseRepository.findById(UUID.randomUUID());
+    void shouldReturnEmptyWhenExpenseDoesNotExistForUser() {
+        Optional<Expense> result = expenseRepository.findByIdAndUserId(
+            UUID.randomUUID(),
+            UUID.randomUUID()
+        );
         assertTrue(result.isEmpty());
     }
 
@@ -560,21 +566,15 @@ public class JooqExpenseRepositoryTest {
     }
 
     @Test
-    void shouldRejectInvalidPageRequest() {
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> new PageRequest(-1, 20)
-        );
+    @Transactional
+    void shouldNotFindExpenseOwnedByAnotherUser() {
+        UUID ownerId = createUserForTest();
+        Expense expense = createExpenseForTest(ownerId, createAccountForTest(ownerId),
+            createCategoryForTest(ownerId), Instant.parse("2026-08-10T12:00:00Z"));
+        UUID anotherUserId = createUserForTest();
 
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> new PageRequest(0, 0)
-        );
-
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> new PageRequest(0, -1)
-        );
+        assertTrue(expenseRepository.findByIdAndUserId(expense.getId(), anotherUserId).isEmpty());
+        assertTrue(expenseRepository.findByIdAndUserId(expense.getId(), ownerId).isPresent());
     }
 
 }

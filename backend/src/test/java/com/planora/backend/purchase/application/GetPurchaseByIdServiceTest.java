@@ -4,6 +4,7 @@ import com.planora.backend.common.exception.ResourceNotFoundException;
 import com.planora.backend.purchase.application.get.GetPurchaseByIdService;
 import com.planora.backend.purchase.domain.Purchase;
 import com.planora.backend.purchase.repository.PurchaseRepository;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,12 +25,16 @@ class GetPurchaseByIdServiceTest {
     @Mock
     private PurchaseRepository purchaseRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private GetPurchaseByIdService getPurchaseByIdService;
 
     @Test
     void shouldGetPurchaseById() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         Purchase purchase = Purchase.create(
@@ -46,10 +51,7 @@ class GetPurchaseByIdServiceTest {
         ).thenReturn(Optional.of(purchase));
 
         Purchase result =
-            getPurchaseByIdService.execute(
-                userId,
-                purchaseId
-            );
+            getPurchaseByIdService.execute(purchaseId);
 
         assertSame(purchase, result);
 
@@ -63,6 +65,7 @@ class GetPurchaseByIdServiceTest {
     @Test
     void shouldThrowWhenPurchaseDoesNotExist() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         when(
@@ -74,10 +77,7 @@ class GetPurchaseByIdServiceTest {
 
         assertThrows(
             ResourceNotFoundException.class,
-            () -> getPurchaseByIdService.execute(
-                userId,
-                purchaseId
-            )
+            () -> getPurchaseByIdService.execute(purchaseId)
         );
 
         verify(purchaseRepository)

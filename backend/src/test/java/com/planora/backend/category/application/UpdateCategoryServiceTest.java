@@ -5,6 +5,7 @@ import com.planora.backend.category.application.update.UpdateCategoryService;
 import com.planora.backend.category.domain.Category;
 import com.planora.backend.category.repository.CategoryRepository;
 import com.planora.backend.common.exception.ResourceNotFoundException;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -24,6 +25,9 @@ class UpdateCategoryServiceTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private CurrentUser currentUser;
 
     @InjectMocks
     private UpdateCategoryService updateCategoryService;
@@ -49,8 +53,8 @@ class UpdateCategoryServiceTest {
         when(
             categoryRepository.findByIdAndUserId(categoryId, userId)
         ).thenReturn(Optional.of(category));
+        when(currentUser.userId()).thenReturn(userId);
         Category result = updateCategoryService.execute(
-            userId,
             categoryId,
             command
         );
@@ -87,11 +91,11 @@ class UpdateCategoryServiceTest {
                 userId
             )
         ).thenReturn(Optional.empty());
+        when(currentUser.userId()).thenReturn(userId);
 
         assertThrows(
             ResourceNotFoundException.class,
             () -> updateCategoryService.execute(
-                userId,
                 categoryId,
                 command
             )
@@ -101,5 +105,4 @@ class UpdateCategoryServiceTest {
             .update(any(Category.class));
     }
 }
-
 

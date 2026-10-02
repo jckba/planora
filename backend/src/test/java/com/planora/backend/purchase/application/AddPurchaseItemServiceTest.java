@@ -5,6 +5,7 @@ import com.planora.backend.purchase.application.item.add.AddPurchaseItemCommand;
 import com.planora.backend.purchase.application.item.add.AddPurchaseItemService;
 import com.planora.backend.purchase.domain.Purchase;
 import com.planora.backend.purchase.repository.PurchaseRepository;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,12 +25,16 @@ class AddPurchaseItemServiceTest {
     @Mock
     private PurchaseRepository purchaseRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private AddPurchaseItemService addPurchaseItemService;
 
     @Test
     void shouldAddItemToPurchase() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
         UUID categoryId = UUID.randomUUID();
 
@@ -43,7 +48,6 @@ class AddPurchaseItemServiceTest {
         AddPurchaseItemCommand command =
             new AddPurchaseItemCommand(
                 purchaseId,
-                userId,
                 categoryId,
                 "Laptop",
                 new BigDecimal("2"),
@@ -120,12 +124,12 @@ class AddPurchaseItemServiceTest {
     @Test
     void shouldThrowWhenPurchaseDoesNotExist() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         AddPurchaseItemCommand command =
             new AddPurchaseItemCommand(
                 purchaseId,
-                userId,
                 UUID.randomUUID(),
                 "Laptop",
                 new BigDecimal("1"),

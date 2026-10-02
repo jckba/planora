@@ -1,6 +1,7 @@
 package com.planora.backend.expense.application;
 
 import com.planora.backend.common.exception.InvalidExpenseReferenceException;
+import com.planora.backend.common.security.CurrentUser;
 import com.planora.backend.expense.application.create.CreateExpenseCommand;
 import com.planora.backend.expense.application.create.CreateExpenseService;
 import com.planora.backend.expense.domain.Expense;
@@ -28,6 +29,9 @@ public class CreateExpenseServiceTest {
 
     @Mock
     private ExpenseReferenceValidator expenseReferenceValidator;
+
+    @Mock
+    private CurrentUser currentUser;
 
     @InjectMocks
     private CreateExpenseService createExpenseService;
@@ -69,7 +73,8 @@ public class CreateExpenseServiceTest {
 
         when(expenseRepository.save(any(Expense.class)))
             .thenReturn(savedExpense);
-        Expense result = createExpenseService.execute(userId, command);
+        when(currentUser.userId()).thenReturn(userId);
+        Expense result = createExpenseService.execute(command);
 
         assertSame(savedExpense, result);
 
@@ -110,10 +115,11 @@ public class CreateExpenseServiceTest {
             BigDecimal.ZERO,
             Instant.now()
         );
+        when(currentUser.userId()).thenReturn(userId);
 
         assertThrows(
             IllegalArgumentException.class,
-            () -> createExpenseService.execute(userId, command)
+            () -> createExpenseService.execute(command)
         );
 
         verifyNoInteractions(expenseRepository);
@@ -146,13 +152,11 @@ public class CreateExpenseServiceTest {
                 accountId,
                 categoryId
             );
+        when(currentUser.userId()).thenReturn(userId);
 
         assertThrows(
             InvalidExpenseReferenceException.class,
-            () -> createExpenseService.execute(
-                userId,
-                command
-            )
+            () -> createExpenseService.execute(command)
         );
 
         verify(expenseReferenceValidator)

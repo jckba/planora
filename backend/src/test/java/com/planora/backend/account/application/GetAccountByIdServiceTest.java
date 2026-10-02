@@ -4,6 +4,7 @@ import com.planora.backend.account.application.get.GetAccountByIdService;
 import com.planora.backend.account.domain.Account;
 import com.planora.backend.account.repository.AccountRepository;
 import com.planora.backend.common.exception.ResourceNotFoundException;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +25,9 @@ class GetAccountByIdServiceTest {
     @Mock
     private AccountRepository accountRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private GetAccountByIdService getAccountByIdService;
 
@@ -41,8 +45,9 @@ class GetAccountByIdServiceTest {
 
         when(accountRepository.findByIdAndUserId(accountId, userId))
             .thenReturn(Optional.of(account));
+        when(currentUser.userId()).thenReturn(userId);
 
-        Account result = getAccountByIdService.execute(userId, accountId);
+        Account result = getAccountByIdService.execute(accountId);
 
         assertSame(account, result);
 
@@ -56,10 +61,11 @@ class GetAccountByIdServiceTest {
 
         when(accountRepository.findByIdAndUserId(accountId, userId))
             .thenReturn(Optional.empty());
+        when(currentUser.userId()).thenReturn(userId);
 
         assertThrows(
             ResourceNotFoundException.class,
-            () -> getAccountByIdService.execute(userId, accountId)
+            () -> getAccountByIdService.execute(accountId)
         );
 
         verify(accountRepository)
@@ -73,10 +79,11 @@ class GetAccountByIdServiceTest {
 
         when(accountRepository.findByIdAndUserId(accountId, userId))
             .thenReturn(Optional.empty());
+        when(currentUser.userId()).thenReturn(userId);
 
         assertThrows(
             ResourceNotFoundException.class,
-            () -> getAccountByIdService.execute(userId, accountId)
+            () -> getAccountByIdService.execute(accountId)
         );
 
         verify(accountRepository)

@@ -56,7 +56,6 @@ class ExpenseControllerTest {
     @Test
     void shouldGetExpenses() throws Exception {
         UUID userId = UUID.randomUUID();
-
         Expense expense = Expense.create(
             userId,
             UUID.randomUUID(),
@@ -80,14 +79,12 @@ class ExpenseControllerTest {
 
         when(
             getExpensesUseCase.execute(
-                userId,
                 pageRequest
             )
         ).thenReturn(pageResult);
 
         mockMvc.perform(
                 get("/api/expenses")
-                    .param("userId", userId.toString())
                     .param("page", "0")
                     .param("size", "10")
             )
@@ -134,7 +131,7 @@ class ExpenseControllerTest {
             );
 
         verify(getExpensesUseCase)
-            .execute(userId, pageRequest);
+            .execute(pageRequest);
     }
 
     @Test
@@ -156,7 +153,6 @@ class ExpenseControllerTest {
 
         when(
             getExpenseByIdUseCase.execute(
-                userId,
                 expenseId
             )
         ).thenReturn(expense);
@@ -166,7 +162,6 @@ class ExpenseControllerTest {
                     "/api/expenses/{expenseId}",
                     expenseId
                 )
-                    .param("userId", userId.toString())
             )
             .andExpect(status().isOk())
             .andExpect(
@@ -191,7 +186,7 @@ class ExpenseControllerTest {
             );
 
         verify(getExpenseByIdUseCase)
-            .execute(userId, expenseId);
+            .execute(expenseId);
     }
 
     @Test
@@ -201,7 +196,6 @@ class ExpenseControllerTest {
 
         when(
             getExpenseByIdUseCase.execute(
-                userId,
                 expenseId
             )
         ).thenThrow(
@@ -215,7 +209,6 @@ class ExpenseControllerTest {
                     "/api/expenses/{expenseId}",
                     expenseId
                 )
-                    .param("userId", userId.toString())
             )
             .andExpect(status().isNotFound())
             .andExpect(
@@ -228,7 +221,7 @@ class ExpenseControllerTest {
             );
 
         verify(getExpenseByIdUseCase)
-            .execute(userId, expenseId);
+            .execute(expenseId);
     }
 
     @Test
@@ -262,14 +255,12 @@ class ExpenseControllerTest {
 
         when(
             createExpenseUseCase.execute(
-                userId,
                 command
             )
         ).thenReturn(expense);
 
         mockMvc.perform(
                 post("/api/expenses")
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                     {
@@ -316,7 +307,7 @@ class ExpenseControllerTest {
             );
 
         verify(createExpenseUseCase)
-            .execute(userId, command);
+            .execute(command);
     }
 
     @Test
@@ -339,7 +330,6 @@ class ExpenseControllerTest {
 
         when(
             createExpenseUseCase.execute(
-                userId,
                 command
             )
         ).thenThrow(
@@ -350,7 +340,6 @@ class ExpenseControllerTest {
 
         mockMvc.perform(
                 post("/api/expenses")
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                     {
@@ -377,7 +366,7 @@ class ExpenseControllerTest {
             );
 
         verify(createExpenseUseCase)
-            .execute(userId, command);
+            .execute(command);
     }
 
     @Test
@@ -404,7 +393,6 @@ class ExpenseControllerTest {
 
         UpdateExpenseCommand command =
             new UpdateExpenseCommand(
-                userId,
                 expenseId,
                 accountId,
                 categoryId,
@@ -420,7 +408,6 @@ class ExpenseControllerTest {
 
         mockMvc.perform(
                 put("/api/expenses/{expenseId}", expenseId)
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                     {
@@ -481,7 +468,6 @@ class ExpenseControllerTest {
 
         UpdateExpenseCommand command =
             new UpdateExpenseCommand(
-                userId,
                 expenseId,
                 accountId,
                 categoryId,
@@ -501,7 +487,6 @@ class ExpenseControllerTest {
 
         mockMvc.perform(
                 put("/api/expenses/{expenseId}", expenseId)
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                     {
@@ -529,7 +514,6 @@ class ExpenseControllerTest {
 
         verify(updateExpenseUseCase)
             .execute(command);
-
     }
 
     @Test
@@ -543,7 +527,6 @@ class ExpenseControllerTest {
 
         UpdateExpenseCommand command =
             new UpdateExpenseCommand(
-                userId,
                 expenseId,
                 accountId,
                 categoryId,
@@ -563,7 +546,6 @@ class ExpenseControllerTest {
 
         mockMvc.perform(
                 put("/api/expenses/{expenseId}", expenseId)
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                     {
@@ -603,7 +585,6 @@ class ExpenseControllerTest {
 
         UpdateExpenseCommand command =
             new UpdateExpenseCommand(
-                userId,
                 expenseId,
                 accountId,
                 categoryId,
@@ -623,7 +604,6 @@ class ExpenseControllerTest {
 
         mockMvc.perform(
                 put("/api/expenses/{expenseId}", expenseId)
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                     {
@@ -657,28 +637,23 @@ class ExpenseControllerTest {
 
     @Test
     void shouldDeleteExpense() throws Exception {
-        UUID userId = UUID.randomUUID();
         UUID expenseId = UUID.randomUUID();
 
         doNothing()
             .when(deleteExpenseUseCase)
-            .execute(userId, expenseId);
+            .execute(expenseId);
 
         mockMvc.perform(
                 delete(
                     "/api/expenses/{expenseId}",
                     expenseId
                 )
-                    .param(
-                        "userId",
-                        userId.toString()
-                    )
             )
             .andExpect(status().isNoContent())
             .andExpect(content().string(""));
 
         verify(deleteExpenseUseCase)
-            .execute(userId, expenseId);
+            .execute(expenseId);
     }
 
     @Test
@@ -694,17 +669,13 @@ class ExpenseControllerTest {
             )
         )
             .when(deleteExpenseUseCase)
-            .execute(userId, expenseId);
+            .execute(expenseId);
 
         mockMvc.perform(
                 delete(
                     "/api/expenses/{expenseId}",
                     expenseId
                 )
-                    .param(
-                        "userId",
-                        userId.toString()
-                    )
             )
             .andExpect(status().isNotFound())
             .andExpect(
@@ -717,7 +688,7 @@ class ExpenseControllerTest {
             );
 
         verify(deleteExpenseUseCase)
-            .execute(userId, expenseId);
+            .execute(expenseId);
     }
 
     @Test
@@ -733,17 +704,13 @@ class ExpenseControllerTest {
             )
         )
             .when(deleteExpenseUseCase)
-            .execute(userId, expenseId);
+            .execute(expenseId);
 
         mockMvc.perform(
                 delete(
                     "/api/expenses/{expenseId}",
                     expenseId
                 )
-                    .param(
-                        "userId",
-                        userId.toString()
-                    )
             )
             .andExpect(status().isConflict())
             .andExpect(
@@ -758,9 +725,6 @@ class ExpenseControllerTest {
             );
 
         verify(deleteExpenseUseCase)
-            .execute(userId, expenseId);
+            .execute( expenseId);
     }
-
-
-
 }

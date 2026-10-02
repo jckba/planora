@@ -7,5 +7,5 @@ import com.planora.backend.purchase.domain.Purchase;
 import java.util.UUID;
 
 public interface GetPurchasesUseCase {
-    PageResult<Purchase> execute(UUID userId, PageRequest pageRequest);
+    PageResult<Purchase> execute(PageRequest pageRequest);
 }

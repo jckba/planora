@@ -5,5 +5,5 @@ import com.planora.backend.purchase.domain.Purchase;
 import java.util.UUID;
 
 public interface CreatePurchaseUseCase {
-    Purchase execute(UUID userId, CreatePurchaseCommand command);
+    Purchase execute(CreatePurchaseCommand command);
 }

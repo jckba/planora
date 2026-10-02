@@ -5,6 +5,5 @@ import com.planora.backend.account.domain.Account;
 import java.util.UUID;
 
 public interface GetAccountByIdUseCase {
-
-    Account execute (UUID userId, UUID accountId);
+    Account execute (UUID accountId);
 }

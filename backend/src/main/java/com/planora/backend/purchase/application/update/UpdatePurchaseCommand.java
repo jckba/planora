@@ -5,7 +5,6 @@ import java.util.UUID;
 
 public record UpdatePurchaseCommand(
     UUID purchaseId,
-    UUID userId,
     Instant expectedDate,
     String notes
 ) {

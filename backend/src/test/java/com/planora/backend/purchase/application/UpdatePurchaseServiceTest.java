@@ -5,6 +5,7 @@ import com.planora.backend.purchase.application.update.UpdatePurchaseCommand;
 import com.planora.backend.purchase.application.update.UpdatePurchaseService;
 import com.planora.backend.purchase.domain.Purchase;
 import com.planora.backend.purchase.repository.PurchaseRepository;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,8 +16,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -25,12 +25,16 @@ class UpdatePurchaseServiceTest {
     @Mock
     private PurchaseRepository purchaseRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private UpdatePurchaseService updatePurchaseService;
 
     @Test
     void shouldUpdatePurchase() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         Purchase purchase =
@@ -48,7 +52,6 @@ class UpdatePurchaseServiceTest {
         UpdatePurchaseCommand command =
             new UpdatePurchaseCommand(
                 purchaseId,
-                userId,
                 expectedDate,
                 "Updated notes"
             );
@@ -94,12 +97,12 @@ class UpdatePurchaseServiceTest {
     @Test
     void shouldThrowWhenPurchaseDoesNotExist() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         UpdatePurchaseCommand command =
             new UpdatePurchaseCommand(
                 purchaseId,
-                userId,
                 null,
                 "Updated notes"
             );
@@ -123,5 +126,6 @@ class UpdatePurchaseServiceTest {
                 purchaseId,
                 userId
             );
+        verify(purchaseRepository, never()).update(any(Purchase.class));
     }
 }

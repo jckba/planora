@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record UpdateExpenseCommand(
-    UUID userId,
     UUID expenseId,
     UUID accountId,
     UUID categoryId,

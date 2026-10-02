@@ -5,6 +5,7 @@ import com.planora.backend.purchase.application.create.CreatePurchaseService;
 import com.planora.backend.purchase.domain.Purchase;
 import com.planora.backend.purchase.domain.PurchaseStatus;
 import com.planora.backend.purchase.repository.PurchaseRepository;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -26,12 +27,16 @@ class CreatePurchaseServiceTest {
     @Mock
     private PurchaseRepository purchaseRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private CreatePurchaseService createPurchaseService;
 
     @Test
     void shouldCreatePurchase() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
 
         Instant expectedDate =
             Instant.parse(
@@ -56,10 +61,7 @@ class CreatePurchaseServiceTest {
         ).thenReturn(savedPurchase);
 
         Purchase result =
-            createPurchaseService.execute(
-                userId,
-                command
-            );
+            createPurchaseService.execute(command);
 
         assertSame(
             savedPurchase,

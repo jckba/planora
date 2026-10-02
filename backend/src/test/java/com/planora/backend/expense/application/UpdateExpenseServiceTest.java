@@ -2,6 +2,7 @@ package com.planora.backend.expense.application;
 
 import com.planora.backend.common.exception.InvalidExpenseReferenceException;
 import com.planora.backend.common.exception.ResourceNotFoundException;
+import com.planora.backend.common.security.CurrentUser;
 import com.planora.backend.expense.application.update.UpdateExpenseCommand;
 import com.planora.backend.expense.application.update.UpdateExpenseService;
 import com.planora.backend.expense.domain.Expense;
@@ -30,6 +31,9 @@ class UpdateExpenseServiceTest {
     @Mock
     private ExpenseReferenceValidator expenseReferenceValidator;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     UpdateExpenseService updateExpenseService;
 
@@ -53,10 +57,9 @@ class UpdateExpenseServiceTest {
         expense.setId(expenseId);
 
         UpdateExpenseCommand command = new UpdateExpenseCommand(
-            userId,
             expenseId,
-            accountId,
-            categoryId,
+            UUID.randomUUID(),
+            UUID.randomUUID(),
             "Updated Lunch",
             "Updated Lunch at restaurant",
             new BigDecimal("40.00"),
@@ -73,6 +76,7 @@ class UpdateExpenseServiceTest {
         when(
             expenseRepository.update(expense)
         ).thenReturn(expense);
+        when(currentUser.userId()).thenReturn(userId);
 
         Expense result =
             updateExpenseService.execute(command);
@@ -82,8 +86,8 @@ class UpdateExpenseServiceTest {
         verify(expenseReferenceValidator)
             .validate(
                 userId,
-                accountId,
-                categoryId
+                command.accountId(),
+                command.categoryId()
             );
 
         verify(expenseRepository)
@@ -96,6 +100,8 @@ class UpdateExpenseServiceTest {
             .update(expense);
 
         assertEquals("Updated Lunch", expense.getTitle());
+        assertEquals(command.accountId(), expense.getAccountId());
+        assertEquals(command.categoryId(), expense.getCategoryId());
         assertEquals(
             "Updated Lunch at restaurant",
             expense.getDescription()
@@ -120,7 +126,6 @@ class UpdateExpenseServiceTest {
 
         UpdateExpenseCommand command =
             new UpdateExpenseCommand(
-                userId,
                 expenseId,
                 accountId,
                 categoryId,
@@ -141,6 +146,7 @@ class UpdateExpenseServiceTest {
                 accountId,
                 categoryId
             );
+        when(currentUser.userId()).thenReturn(userId);
 
         assertThrows(
             InvalidExpenseReferenceException.class,
@@ -166,7 +172,6 @@ class UpdateExpenseServiceTest {
 
         UpdateExpenseCommand command =
             new UpdateExpenseCommand(
-                userId,
                 expenseId,
                 accountId,
                 categoryId,
@@ -182,6 +187,7 @@ class UpdateExpenseServiceTest {
                 userId
             )
         ).thenReturn(Optional.empty());
+        when(currentUser.userId()).thenReturn(userId);
 
         assertThrows(
             ResourceNotFoundException.class,

@@ -1,6 +1,7 @@
 package com.planora.backend.expense.application;
 
 import com.planora.backend.common.exception.ResourceNotFoundException;
+import com.planora.backend.common.security.CurrentUser;
 import com.planora.backend.expense.application.delete.DeleteExpenseService;
 import com.planora.backend.expense.domain.Expense;
 import com.planora.backend.expense.repository.ExpenseRepository;
@@ -25,6 +26,9 @@ class DeleteExpenseServiceTest {
     @Mock
     private ExpenseRepository expenseRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private DeleteExpenseService deleteExpenseService;
 
@@ -47,8 +51,9 @@ class DeleteExpenseServiceTest {
 
         when(expenseRepository.findByIdAndUserId(expenseId, userId))
             .thenReturn(Optional.of(expense));
+        when(currentUser.userId()).thenReturn(userId);
 
-        deleteExpenseService.execute(userId, expenseId);
+        deleteExpenseService.execute(expenseId);
         assertNotNull(expense.getDeletedAt());
 
         verify(expenseRepository)
@@ -62,6 +67,7 @@ class DeleteExpenseServiceTest {
     void shouldThrowWhenExpenseDoesNotExist() {
         UUID userId = UUID.randomUUID();
         UUID expenseId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
 
         when(
             expenseRepository.findByIdAndUserId(
@@ -72,10 +78,7 @@ class DeleteExpenseServiceTest {
 
         assertThrows(
             ResourceNotFoundException.class,
-            () -> deleteExpenseService.execute(
-                userId,
-                expenseId
-            )
+            () -> deleteExpenseService.execute(expenseId)
         );
 
         verify(
@@ -91,4 +94,3 @@ class DeleteExpenseServiceTest {
         ).delete(any(Expense.class));
     }
 }
-

@@ -1,6 +1,7 @@
 package com.planora.backend.purchase.repository.jooq;
 
-import com.planora.backend.common.exception.OptimisticLockException;import com.planora.backend.common.pagination.PageRequest;
+import com.planora.backend.common.exception.OptimisticLockException;
+import com.planora.backend.common.pagination.PageRequest;
 import com.planora.backend.common.pagination.PageResult;
 import com.planora.backend.purchase.domain.Purchase;
 import com.planora.backend.purchase.domain.PurchaseItem;
@@ -491,19 +492,18 @@ public class JooqPurchaseRepository implements PurchaseRepository {
             dsl.deleteFrom(PURCHASE)
                 .where(
                     PURCHASE.ID.eq(
-                        purchase.getId()
-                    )
-                )
-                .and(
-                    PURCHASE.USER_ID.eq(
-                        purchase.getUserId()
-                    )
-                )
-                .and(
-                    PURCHASE.VERSION.eq(
-                        purchase.getVersion()
-                    )
-                )
+                            purchase.getId()
+                        )
+                        .and(
+                            PURCHASE.USER_ID.eq(
+                                purchase.getUserId()
+                            )
+                        )
+                        .and(
+                            PURCHASE.VERSION.eq(
+                                purchase.getVersion()
+                            )
+                        ))
                 .execute();
 
         if (deletedRows == 0) {

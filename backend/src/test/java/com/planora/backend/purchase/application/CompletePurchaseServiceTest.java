@@ -7,6 +7,7 @@ import com.planora.backend.purchase.domain.PurchaseItem;
 import com.planora.backend.purchase.domain.PurchasePayment;
 import com.planora.backend.purchase.domain.PurchaseStatus;
 import com.planora.backend.purchase.repository.PurchaseRepository;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,12 +28,16 @@ class CompletePurchaseServiceTest {
     @Mock
     private PurchaseRepository purchaseRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private CompletePurchaseService completePurchaseService;
 
     @Test
     void shouldCompletePurchase() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         Purchase purchase =
@@ -70,10 +75,7 @@ class CompletePurchaseServiceTest {
         ).thenReturn(purchase);
 
         Purchase result =
-            completePurchaseService.execute(
-                userId,
-                purchaseId
-            );
+            completePurchaseService.execute(purchaseId);
 
         assertSame(purchase, result);
 
@@ -95,6 +97,7 @@ class CompletePurchaseServiceTest {
     @Test
     void shouldThrowWhenPurchaseDoesNotExist() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         when(
@@ -106,10 +109,7 @@ class CompletePurchaseServiceTest {
 
         assertThrows(
             ResourceNotFoundException.class,
-            () -> completePurchaseService.execute(
-                userId,
-                purchaseId
-            )
+            () -> completePurchaseService.execute(purchaseId)
         );
 
         verify(purchaseRepository)
@@ -126,6 +126,7 @@ class CompletePurchaseServiceTest {
     @Test
     void shouldRejectPurchaseWithoutItems() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
 
@@ -153,10 +154,7 @@ class CompletePurchaseServiceTest {
         assertThrows(
             IllegalStateException.class,
             () ->
-                completePurchaseService.execute(
-                    userId,
-                    purchaseId
-                )
+                completePurchaseService.execute(purchaseId)
         );
 
         verify(
@@ -168,6 +166,7 @@ class CompletePurchaseServiceTest {
     @Test
     void shouldRejectWhenPaymentsDoNotMatchTotal() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         Purchase purchase =
@@ -203,10 +202,7 @@ class CompletePurchaseServiceTest {
         assertThrows(
             IllegalStateException.class,
             () ->
-                completePurchaseService.execute(
-                    userId,
-                    purchaseId
-                )
+                completePurchaseService.execute(purchaseId)
         );
 
         verify(

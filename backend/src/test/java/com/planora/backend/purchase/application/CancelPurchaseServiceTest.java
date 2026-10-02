@@ -7,6 +7,7 @@ import com.planora.backend.purchase.domain.PurchaseItem;
 import com.planora.backend.purchase.domain.PurchasePayment;
 import com.planora.backend.purchase.domain.PurchaseStatus;
 import com.planora.backend.purchase.repository.PurchaseRepository;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,12 +29,16 @@ class CancelPurchaseServiceTest {
     @Mock
     private PurchaseRepository purchaseRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private CancelPurchaseService cancelPurchaseService;
 
     @Test
     void shouldCancelPurchase() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         Purchase purchase =
@@ -55,10 +60,7 @@ class CancelPurchaseServiceTest {
         ).thenReturn(purchase);
 
         Purchase result =
-            cancelPurchaseService.execute(
-                userId,
-                purchaseId
-            );
+            cancelPurchaseService.execute(purchaseId);
 
         assertSame(purchase, result);
 
@@ -80,6 +82,7 @@ class CancelPurchaseServiceTest {
     @Test
     void shouldThrowWhenPurchaseDoesNotExist() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         when(
@@ -91,10 +94,7 @@ class CancelPurchaseServiceTest {
 
         assertThrows(
             ResourceNotFoundException.class,
-            () -> cancelPurchaseService.execute(
-                userId,
-                purchaseId
-            )
+            () -> cancelPurchaseService.execute(purchaseId)
         );
 
         verify(purchaseRepository)
@@ -111,6 +111,7 @@ class CancelPurchaseServiceTest {
     @Test
     void shouldRejectCancellationOfCompletedPurchase() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         Purchase purchase =
@@ -148,10 +149,7 @@ class CancelPurchaseServiceTest {
         assertThrows(
             IllegalStateException.class,
             () ->
-                cancelPurchaseService.execute(
-                    userId,
-                    purchaseId
-                )
+                cancelPurchaseService.execute(purchaseId)
         );
 
         verify(
@@ -168,4 +166,3 @@ class CancelPurchaseServiceTest {
     }
 
 }
-

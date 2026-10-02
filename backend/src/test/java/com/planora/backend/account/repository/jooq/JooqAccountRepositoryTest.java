@@ -225,7 +225,7 @@ public class JooqAccountRepositoryTest {
                 userId,
                 (short) 1,
                 (short) 1,
-                "Checking"
+                "Savings"
             )
         );
 
@@ -234,7 +234,7 @@ public class JooqAccountRepositoryTest {
                 userId,
                 (short) 1,
                 (short) 1,
-                "Savings"
+                "Checking"
             )
         );
 
@@ -250,12 +250,12 @@ public class JooqAccountRepositoryTest {
         assertEquals(10, result.size());
 
         assertEquals(
-            firstAccount.getId(),
+            secondAccount.getId(),
             result.content().get(0).getId()
         );
 
         assertEquals(
-            secondAccount.getId(),
+            firstAccount.getId(),
             result.content().get(1).getId()
         );
     }

@@ -4,7 +4,6 @@ import java.util.UUID;
 
 public record RemovePurchasePaymentCommand(
     UUID purchaseId,
-    UUID userId,
     UUID paymentId
 ) {
 }

@@ -7,6 +7,5 @@ import com.planora.backend.expense.domain.Expense;
 import java.util.UUID;
 
 public interface GetExpensesUseCase {
-
-    PageResult<Expense> execute(UUID userId, PageRequest pageRequest);
+    PageResult<Expense> execute(PageRequest pageRequest);
 }

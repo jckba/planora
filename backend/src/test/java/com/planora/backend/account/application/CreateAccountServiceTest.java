@@ -5,6 +5,7 @@ import com.planora.backend.account.application.create.CreateAccountService;
 import com.planora.backend.account.domain.Account;
 import com.planora.backend.account.repository.AccountRepository;
 import com.planora.backend.common.exception.InvalidAccountReferenceException;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -28,6 +29,9 @@ class CreateAccountServiceTest {
     @Mock
     private AccountReferenceValidator accountReferenceValidator;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private CreateAccountService createAccountService;
 
@@ -36,7 +40,6 @@ class CreateAccountServiceTest {
         UUID userId = UUID.randomUUID();
 
         CreateAccountCommand command = new CreateAccountCommand(
-            userId,
             (short) 1,
             (short) 1,
             "My Account"
@@ -51,8 +54,9 @@ class CreateAccountServiceTest {
 
         when(accountRepository.save(any(Account.class)))
             .thenReturn(savedAccount);
+        when(currentUser.userId()).thenReturn(userId);
 
-        Account result = createAccountService.execute(userId, command);
+        Account result = createAccountService.execute(command);
 
         assertSame(savedAccount, result);
 
@@ -60,6 +64,8 @@ class CreateAccountServiceTest {
             ArgumentCaptor.forClass(Account.class);
 
         verify(accountRepository).save(captor.capture());
+        verify(accountReferenceValidator)
+            .validate(command.accountTypeId(), command.currencyId());
 
         Account createdAccount = captor.getValue();
 
@@ -93,15 +99,15 @@ class CreateAccountServiceTest {
         UUID userId = UUID.randomUUID();
 
         CreateAccountCommand command = new CreateAccountCommand(
-            userId,
             (short) 1,
             (short) 1,
             "   "
         );
+        when(currentUser.userId()).thenReturn(userId);
 
         assertThrows(
             IllegalArgumentException.class,
-            () -> createAccountService.execute(userId, command)
+            () -> createAccountService.execute(command)
         );
 
         verifyNoInteractions(accountRepository);
@@ -113,11 +119,11 @@ class CreateAccountServiceTest {
 
         CreateAccountCommand command =
             new CreateAccountCommand(
-                userId,
                 (short) 99,
                 (short) 1,
                 "My Account"
             );
+        when(currentUser.userId()).thenReturn(userId);
 
         doThrow(
             new InvalidAccountReferenceException(
@@ -129,7 +135,7 @@ class CreateAccountServiceTest {
 
         assertThrows(
             InvalidAccountReferenceException.class,
-            () -> createAccountService.execute(userId, command)
+            () -> createAccountService.execute(command)
         );
 
         verify(accountRepository, never())

@@ -26,7 +26,6 @@ public class AuthController {
         this.createUserUseCase = createUserUseCase;
     }
 
-
     @PostMapping("/register")
     public ResponseEntity<Void> register(
         @Valid @RequestBody RegisterUserRequest request

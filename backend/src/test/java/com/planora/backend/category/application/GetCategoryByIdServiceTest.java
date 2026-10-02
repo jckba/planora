@@ -4,6 +4,7 @@ import com.planora.backend.category.application.get.GetCategoryByIdService;
 import com.planora.backend.category.domain.Category;
 import com.planora.backend.category.repository.CategoryRepository;
 import com.planora.backend.common.exception.ResourceNotFoundException;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +24,9 @@ public class GetCategoryByIdServiceTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private CurrentUser currentUser;
 
     @InjectMocks
     private GetCategoryByIdService getCategoryByIdService;
@@ -45,9 +49,10 @@ public class GetCategoryByIdServiceTest {
                 userId
             )
         ).thenReturn(Optional.of(category));
+        when(currentUser.userId()).thenReturn(userId);
 
         Category result =
-            getCategoryByIdService.execute(userId, categoryId);
+            getCategoryByIdService.execute(categoryId);
 
         assertSame(category, result);
 
@@ -66,13 +71,11 @@ public class GetCategoryByIdServiceTest {
                 userId
             )
         ).thenReturn(Optional.empty());
+        when(currentUser.userId()).thenReturn(userId);
 
         assertThrows(
             ResourceNotFoundException.class,
-            () -> getCategoryByIdService.execute(
-                userId,
-                categoryId
-            )
+            () -> getCategoryByIdService.execute(categoryId)
         );
 
         verify(categoryRepository)
@@ -90,13 +93,11 @@ public class GetCategoryByIdServiceTest {
                 userId
             )
         ).thenReturn(Optional.empty());
+        when(currentUser.userId()).thenReturn(userId);
 
         assertThrows(
             ResourceNotFoundException.class,
-            () -> getCategoryByIdService.execute(
-                userId,
-                categoryId
-            )
+            () -> getCategoryByIdService.execute(categoryId)
         );
 
         verify(categoryRepository)

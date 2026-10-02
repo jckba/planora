@@ -5,7 +5,6 @@ import java.util.UUID;
 
 public record AddPurchaseItemCommand(
     UUID purchaseId,
-    UUID userId,
     UUID categoryId,
     String name,
     BigDecimal quantity,

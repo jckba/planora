@@ -4,6 +4,7 @@ import com.planora.backend.account.application.delete.DeleteAccountService;
 import com.planora.backend.account.domain.Account;
 import com.planora.backend.account.repository.AccountRepository;
 import com.planora.backend.common.exception.ResourceNotFoundException;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +23,9 @@ class DeleteAccountServiceTest
     @Mock
     private AccountRepository accountRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private DeleteAccountService deleteAccountService;
 
@@ -36,6 +40,7 @@ class DeleteAccountServiceTest
             (short) 1,
             "My Account"
         );
+        when(currentUser.userId()).thenReturn(userId);
 
         when(
             accountRepository.findByIdAndUserId(
@@ -44,10 +49,7 @@ class DeleteAccountServiceTest
             )
         ).thenReturn(Optional.of(account));
 
-        deleteAccountService.execute(
-            userId,
-            accountId
-        );
+        deleteAccountService.execute(accountId);
 
         verify(accountRepository)
             .delete(accountId, userId);
@@ -57,6 +59,7 @@ class DeleteAccountServiceTest
     void shouldThrowWhenAccountDoesNotExist() {
         UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
 
         when(
             accountRepository.findByIdAndUserId(
@@ -67,10 +70,7 @@ class DeleteAccountServiceTest
 
         assertThrows(
             ResourceNotFoundException.class,
-            () -> deleteAccountService.execute(
-                userId,
-                accountId
-            )
+            () -> deleteAccountService.execute(accountId)
         );
 
         verify(

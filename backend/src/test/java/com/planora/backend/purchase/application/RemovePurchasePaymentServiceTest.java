@@ -6,6 +6,7 @@ import com.planora.backend.purchase.application.payment.remove.RemovePurchasePay
 import com.planora.backend.purchase.domain.Purchase;
 import com.planora.backend.purchase.domain.PurchasePayment;
 import com.planora.backend.purchase.repository.PurchaseRepository;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,12 +27,16 @@ class RemovePurchasePaymentServiceTest {
     @Mock
     private PurchaseRepository purchaseRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private RemovePurchasePaymentService removePurchasePaymentService;
 
     @Test
     void shouldRemovePaymentFromPurchase() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
 
@@ -53,7 +58,6 @@ class RemovePurchasePaymentServiceTest {
         RemovePurchasePaymentCommand command =
             new RemovePurchasePaymentCommand(
                 purchaseId,
-                userId,
                 payment.getId()
             );
 
@@ -92,13 +96,13 @@ class RemovePurchasePaymentServiceTest {
     @Test
     void shouldThrowWhenPurchaseDoesNotExist() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
         UUID paymentId = UUID.randomUUID();
 
         RemovePurchasePaymentCommand command =
             new RemovePurchasePaymentCommand(
                 purchaseId,
-                userId,
                 paymentId
             );
 
@@ -131,6 +135,7 @@ class RemovePurchasePaymentServiceTest {
     @Test
     void shouldRejectWhenPaymentDoesNotExist() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         Purchase purchase =
@@ -143,7 +148,6 @@ class RemovePurchasePaymentServiceTest {
         RemovePurchasePaymentCommand command =
             new RemovePurchasePaymentCommand(
                 purchaseId,
-                userId,
                 UUID.randomUUID()
             );
 

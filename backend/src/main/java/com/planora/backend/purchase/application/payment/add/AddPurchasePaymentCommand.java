@@ -5,7 +5,6 @@ import java.util.UUID;
 
 public record AddPurchasePaymentCommand(
     UUID purchaseId,
-    UUID userId,
     UUID accountId,
     BigDecimal amount
 ) {

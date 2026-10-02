@@ -4,6 +4,7 @@ import com.planora.backend.common.exception.ResourceNotFoundException;
 import com.planora.backend.purchase.application.delete.DeletePurchaseService;
 import com.planora.backend.purchase.domain.Purchase;
 import com.planora.backend.purchase.repository.PurchaseRepository;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,12 +23,16 @@ class DeletePurchaseServiceTest {
     @Mock
     private PurchaseRepository purchaseRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private DeletePurchaseService deletePurchaseService;
 
     @Test
     void shouldDeletePurchase() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         Purchase purchase =
@@ -44,10 +49,7 @@ class DeletePurchaseServiceTest {
             )
         ).thenReturn(Optional.of(purchase));
 
-        deletePurchaseService.execute(
-            userId,
-            purchaseId
-        );
+        deletePurchaseService.execute(purchaseId);
 
         verify(purchaseRepository)
             .findByIdAndUserId(
@@ -66,6 +68,7 @@ class DeletePurchaseServiceTest {
     @Test
     void shouldThrowWhenPurchaseDoesNotExist() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         when(
@@ -77,10 +80,7 @@ class DeletePurchaseServiceTest {
 
         assertThrows(
             ResourceNotFoundException.class,
-            () -> deletePurchaseService.execute(
-                userId,
-                purchaseId
-            )
+            () -> deletePurchaseService.execute(purchaseId)
         );
 
         verify(purchaseRepository)

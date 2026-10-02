@@ -83,19 +83,9 @@ public class JooqCategoryRepository implements CategoryRepository {
                 )
             )
             .set(CATEGORY.VERSION, category.getVersion())
-            .where(CATEGORY.ID.eq(category.getId()))
+            .where(CATEGORY.ID.eq(category.getId())
+                .and(CATEGORY.USER_ID.eq(category.getUserId())))
             .execute();
-    }
-
-    @Override
-    public Optional<Category> findById(UUID id) {
-        CategoryRecord record = dsl.selectFrom(CATEGORY)
-            .where(CATEGORY.ID.eq(id)
-                .and(CATEGORY.DELETED_AT.isNull())
-            )
-            .fetchOne();
-        return Optional.ofNullable(record)
-            .map(this::mapToCategory);
     }
 
     @Override

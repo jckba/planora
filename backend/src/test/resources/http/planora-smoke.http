@@ -1,162 +1,95 @@
+# Ejecutar en orden contra un backend conectado a una base de pruebas.
+# Cada registro crea un usuario; no ejecutar contra una base de producción.
+# El login actual devuelve 200 sin token ni sesión. Por eso el CRUD autenticado
+# no puede probarse por HTTP todavía. Los tests Java cubren controladores,
+# servicios y repositorios; estas peticiones comprueban el contrato disponible.
 @baseUrl = http://localhost:8080
-@userId = 00000000-0000-0000-0000-000000000001
-@category1Id = 26f15e50-3c10-479c-83ec-feff73f0502b
-@accountId = d3ebe76e-9396-44ed-9ac8-e3bbdca4cab1
-@purchaseId = c6299487-6304-4d72-8ab1-bcd423efff2d
-@item1Id = 48f84552-e789-4681-9baf-a6b641cfab09
 
-
-### Create Category
-POST {{baseUrl}}/api/categories?userId={{userId}}
+### Registro con datos únicos por ejecución
+< {%
+    const suffix = Date.now().toString() + Math.floor(Math.random() * 1000000);
+    client.global.set("smokeUsername", "smoke-" + suffix);
+    client.global.set("smokeEmail", "smoke-" + suffix + "@planora.test");
+%}
+POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
 
 {
-    "name": "Food",
-    "color": "FF9800",
-    "icon": "restaurant"
-}
-
-### GET BY ID
-GET http://localhost:8080/api/categories/{{category1Id}}?userId={{userId}}
-
-### GET GATEGORIES
-GET http://localhost:8080/api/categories?userId=00000000-0000-0000-0000-000000000001&page=0&size=10
-
-### UPDATE CATEGORY
-PUT http://localhost:8080/api/categories/1a870831-837c-4c4e-b654-64d934ace8c9?userId=00000000-0000-0000-0000-000000000001
-Content-Type: application/json
-
-{
-    "name": "Food Updated",
-    "color": "4CAF50",
-    "icon": "shopping_cart"
-}
-
-### DELETE CATEGORY
-DELETE http://localhost:8080/api/categories/834e504e-167d-4562-966b-295861639900
-    ?userId=00000000-0000-0000-0000-000000000001
-
-### Create Account
-POST http://localhost:8080/api/accounts?userId={{userId}}
-Content-Type: application/json
-
-{
-    "accountTypeId": 1,
-    "currencyId": 1,
-    "name": "Cash"
-}
-
-### Create Purchase
-POST http://localhost:8080/api/purchases?userId={{userId}}
-Content-Type: application/json
-
-{
-    "expectedDate": "2026-09-15T12:00:00Z",
-    "notes": "Month purchase"
-}
-
-### GET Purchase when id
-GET http://localhost:8080/api/purchases/{{purchaseId}}?userId=00000000-0000-0000-0000-000000000001
-
-### ADD item to purchase
-POST http://localhost:8080/api/purchases/{{purchaseId}}/items?userId={{userId}}
-Content-Type: application/json
-
-{
-    "categoryId": "{{category1Id}}",
-    "name": "Arroz",
-    "quantity": 2,
-    "unitPrice": 5.50
-}
-
-### ADD second item to purchase
-POST http://localhost:8080/api/purchases/{{purchaseId}}/items?userId={{userId}}
-Content-Type: application/json
-
-{
-    "categoryId": "{{category1Id}}",
-    "name": "Leche",
-    "quantity": 3,
-    "unitPrice": 4.00
-}
-
-### Remove first purchase item
-DELETE http://localhost:8080/api/purchases/{{purchaseId}}/items/{{item1Id}}?userId={{userId}}
-
-### Add payment
-POST http://localhost:8080/api/purchases/{{purchaseId}}/payments?userId={{userId}}
-Content-Type: application/json
-
-{
-    "accountId": "{{accountId}}",
-    "amount": 12
-}
-
-### Remove purchase payment
-DELETE http://localhost:8080/api/purchases/{{purchaseId}}/payments/4bc3669c-8ceb-4d37-b939-3a981b0ab559?userId={{userId}}
-
-### Complete purchase
-POST http://localhost:8080/api/purchases/{{purchaseId}}/complete?userId={{userId}}
-
-### Get completed purchase
-GET http://localhost:8080/api/purchases/{{purchaseId}}?userId={{userId}}
-
-### Create purchase to cancel
-POST http://localhost:8080/api/purchases?userId={{userId}}
-Content-Type: application/json
-
-{
-    "expectedDate": "2026-09-15T12:00:00Z",
-    "notes": "Purchase to cancel"
-}
-
-### Cancel purchase
-POST http://localhost:8080/api/purchases/cd60c4d5-bee6-4ce4-8225-592cdb4e511a/cancel?userId={{userId}}
-
-### Get cancelled purchase
-GET http://localhost:8080/api/purchases/cd60c4d5-bee6-4ce4-8225-592cdb4e511a?userId={{userId}}
-
-
-### Create expense
-POST http://localhost:8080/api/expenses?userId={{userId}}
-Content-Type: application/json
-
-{
-    "accountId": "{{accountId}}",
-    "categoryId": "{{category1Id}}",
-    "title": "Rice",
-    "description": "Grocery purchase",
-    "amount": 12.00,
-    "expenseDate": "2026-08-31T12:00:00Z"
-}
-
-### Get expense
-GET http://localhost:8080/api/expenses/648e18fa-ffc0-4e0f-8168-2ffed0a2619d?userId={{userId}}
-
-### Get expenses
-GET http://localhost:8080/api/expenses?userId={{userId}}&page=0&size=10
-
-### Delete expense
-DELETE http://localhost:8080/api/expenses/648e18fa-ffc0-4e0f-8168-2ffed0a2619d?userId={{userId}}
-
-### Verify deleted expense
-GET http://localhost:8080/api/expenses/648e18fa-ffc0-4e0f-8168-2ffed0a2619d?userId={{userId}}
-
-### Get expenses page 0
-GET http://localhost:8080/api/expenses?userId={{userId}}&page=0&size=10
-
-### Get purchases page 0
-GET http://localhost:8080/api/purchases?userId={{userId}}&page=0&size=10
-
-### Register User
-POST http://localhost:8080/api/auth/register
-Content-Type: application/json
-
-{
-    "username": "test-user",
-    "email": "abc@example.com",
-    "password": "Password123",
-    "firstName": "Test",
-    "lastName": "User",
+    "username": "{{smokeUsername}}",
+    "email": "{{smokeEmail}}",
+    "password": "SmokePassword123",
+    "firstName": "Smoke",
+    "lastName": "Test",
     "primaryCurrencyId": 1
 }
+
+> {%
+    client.test("Registro: 201", function () {
+        client.assert(response.status === 201, "Se esperaba 201");
+    });
+%}
+
+### Un email repetido debe rechazarse
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+    "username": "{{smokeUsername}}",
+    "email": "{{smokeEmail}}",
+    "password": "SmokePassword123",
+    "firstName": "Smoke",
+    "lastName": "Test",
+    "primaryCurrencyId": 1
+}
+
+> {%
+    client.test("Email duplicado: 409", function () {
+        client.assert(response.status === 409, "Se esperaba 409");
+        client.assert(response.body.code === "EMAIL_ALREADY_IN_USE", "Código incorrecto");
+    });
+%}
+
+### Validación del registro
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+    "username": "",
+    "email": "{{smokeEmail}}",
+    "password": "SmokePassword123",
+    "firstName": "Smoke",
+    "lastName": "Test",
+    "primaryCurrencyId": 1
+}
+
+> {%
+    client.test("Username vacío: 400", function () {
+        client.assert(response.status === 400, "Se esperaba 400");
+        client.assert(response.body.code === "VALIDATION_ERROR", "Código incorrecto");
+        client.assert(response.body.errors.some(e => e.field === "username"), "Falta error de username");
+    });
+%}
+
+### Comprobación de credenciales (aún no entrega token ni sesión)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{smokeEmail}}",
+    "password": "SmokePassword123"
+}
+
+> {%
+    client.test("Credenciales válidas: 200", function () {
+        client.assert(response.status === 200, "Se esperaba 200");
+    });
+%}
+
+### El parámetro userId no autentica ni autoriza al cliente
+GET {{baseUrl}}/api/purchases?userId=00000000-0000-0000-0000-000000000001
+
+> {%
+    client.test("Recurso protegido sin autenticación: 403", function () {
+        client.assert(response.status === 403, "Se esperaba 403");
+    });
+%}

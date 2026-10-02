@@ -5,6 +5,7 @@ import com.planora.backend.common.pagination.PageResult;
 import com.planora.backend.purchase.application.get.GetPurchasesService;
 import com.planora.backend.purchase.domain.Purchase;
 import com.planora.backend.purchase.repository.PurchaseRepository;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,12 +24,16 @@ class GetPurchasesServiceTest {
     @Mock
     private PurchaseRepository purchaseRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private GetPurchasesService getPurchasesService;
 
     @Test
     void shouldGetPurchases() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
 
         PageRequest pageRequest =
             new PageRequest(0, 10);
@@ -56,10 +61,7 @@ class GetPurchasesServiceTest {
         ).thenReturn(pageResult);
 
         PageResult<Purchase> result =
-            getPurchasesService.execute(
-                userId,
-                pageRequest
-            );
+            getPurchasesService.execute(pageRequest);
 
         assertSame(pageResult, result);
 
