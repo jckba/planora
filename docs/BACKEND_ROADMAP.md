@@ -2,6 +2,8 @@
 
 Revisión del código y configuración disponibles el 25 de septiembre de 2026, incluidos los cambios locales existentes. Este documento propone trabajo futuro; no implica que las correcciones estén implementadas.
 
+La evolución global hacia web Angular, Android y widgets está descrita en la [hoja de ruta full stack](FULL_STACK_ROADMAP.md).
+
 ## Evaluación
 
 Planora tiene una base de monolito por funcionalidades adecuada para un portafolio Java: API REST, interfaces de casos de uso y repositorios, reglas de dominio, SQL tipado con jOOQ, migraciones, concurrencia optimista y pruebas por capas. Se encontraron 48 archivos `*Test.java`; ese número no mide cobertura ni garantiza que pasen.

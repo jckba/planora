@@ -2,6 +2,8 @@
 
 Estos textos describen el estado actual. No atribuyen JWT funcional, pasarela de pagos, despliegue productivo ni metas de ahorro implementadas.
 
+Consulta la [hoja de ruta full stack](FULL_STACK_ROADMAP.md) para conocer la evolución futura planificada sin confundirla con este estado actual.
+
 ## CV
 
 **Planora — Backend de finanzas personales | Proyecto personal en desarrollo**
