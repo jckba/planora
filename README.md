@@ -66,8 +66,8 @@ Los módulos Gradle incluidos actualmente son `backend` y `database`. Los client
 2. Inicia PostgreSQL desde la raíz del repositorio:
 
    ```bash
-   docker compose --env-file infra/docker/.env -f infra/docker/compose.yml up -d
-   docker compose --env-file infra/docker/.env -f infra/docker/compose.yml ps
+   docker compose --env-file infra/docker/.env -f infra/docker/compose.yaml up -d
+   docker compose --env-file infra/docker/.env -f infra/docker/compose.yaml ps
    ```
 
 3. Cuando PostgreSQL esté saludable, inicia el backend:

@@ -261,7 +261,7 @@ graph TD
 - **Propósito:** Empaquetar y verificar backend, web y Android con observabilidad y demo reproducible.
 - **Tecnologías:** Docker multi-stage, Nginx para Angular, GitHub Actions, JaCoCo, cobertura web, Android Gradle Plugin, Actuator, Micrometer/Prometheus y Logback JSON.
 - **Aprendizaje:** pipeline matricial, artefactos por plataforma, health checks y trazabilidad.
-- **Archivos:** Dockerfiles, `infra/docker/compose.yml`, `.github/workflows/ci.yml`, configuración Actuator/logs y documentación de despliegue.
+- **Archivos:** Dockerfiles, `../infra/docker/compose.yaml`, `.github/workflows/ci.yml`, configuración Actuator/logs y documentación de despliegue.
 
 ---
 
