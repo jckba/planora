@@ -2,6 +2,7 @@ package com.planora.backend.expense.application;
 
 import com.planora.backend.common.pagination.PageRequest;
 import com.planora.backend.common.pagination.PageResult;
+import com.planora.backend.common.security.CurrentUser;
 import com.planora.backend.expense.application.get.GetExpensesService;
 import com.planora.backend.expense.domain.Expense;
 import com.planora.backend.expense.repository.ExpenseRepository;
@@ -26,6 +27,9 @@ class GetExpensesServiceTest {
 
     @Mock
     private ExpenseRepository expenseRepository;
+
+    @Mock
+    private CurrentUser currentUser;
 
     @InjectMocks
     private GetExpensesService getExpensesService;
@@ -61,12 +65,10 @@ class GetExpensesServiceTest {
                 pageRequest
             )
         ).thenReturn(expected);
+        when(currentUser.userId()).thenReturn(userId);
 
         PageResult<Expense> result =
-            getExpensesService.execute(
-                userId,
-                pageRequest
-            );
+            getExpensesService.execute(pageRequest);
 
         assertSame(expected, result);
 

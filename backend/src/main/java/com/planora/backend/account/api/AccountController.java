@@ -41,17 +41,15 @@ public class AccountController {
 
     @GetMapping("/{accountId}")
     public AccountResponse getAccountById(
-        @RequestParam UUID userId,
         @PathVariable UUID accountId
     ) {
-        Account account = getAccountByIdUseCase.execute(userId, accountId);
+        Account account = getAccountByIdUseCase.execute(accountId);
 
         return toResponse(account);
     }
 
     @GetMapping
     public PageResponse<AccountResponse> getAccounts(
-        @RequestParam UUID userId,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
@@ -59,10 +57,7 @@ public class AccountController {
             new PageRequest(page, size);
 
         PageResult<Account> result =
-            getAccountsUseCase.execute(
-                userId,
-                pageRequest
-            );
+            getAccountsUseCase.execute(pageRequest);
 
         List<AccountResponse> content =
             result.content()
@@ -81,30 +76,26 @@ public class AccountController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AccountResponse createAccount(
-        @RequestParam UUID userId,
         @Valid @RequestBody CreateAccountRequest request
     ) {
         CreateAccountCommand command = new CreateAccountCommand(
-            userId,
             request.accountTypeId(),
             request.currencyId(),
             request.name()
         );
 
-        Account account = createAccountUseCase.execute(userId, command);
+        Account account = createAccountUseCase.execute(command);
 
         return toResponse(account);
     }
 
     @PutMapping("/{accountId}")
     public AccountResponse updateAccount(
-        @RequestParam UUID userId,
         @PathVariable UUID accountId,
         @Valid @RequestBody UpdateAccountRequest request
     ) {
         UpdateAccountCommand command =
             new UpdateAccountCommand(
-                userId,
                 accountId,
                 request.accountTypeId(),
                 request.currencyId(),
@@ -120,10 +111,9 @@ public class AccountController {
     @DeleteMapping("/{accountId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAccount(
-        @RequestParam UUID userId,
         @PathVariable UUID accountId
     ) {
-        deleteAccountUseCase.execute(userId, accountId);
+        deleteAccountUseCase.execute(accountId);
     }
 
 

@@ -6,6 +6,7 @@ import com.planora.backend.account.domain.Account;
 import com.planora.backend.account.repository.AccountRepository;
 import com.planora.backend.common.exception.InvalidAccountReferenceException;
 import com.planora.backend.common.exception.ResourceNotFoundException;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,6 +28,9 @@ class UpdateAccountServiceTest {
     @Mock
     private AccountReferenceValidator accountReferenceValidator;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private UpdateAccountService updateAccountService;
 
@@ -44,7 +48,6 @@ class UpdateAccountServiceTest {
 
         UpdateAccountCommand command =
             new UpdateAccountCommand(
-                userId,
                 accountId,
                 (short) 2,
                 (short) 2,
@@ -54,9 +57,10 @@ class UpdateAccountServiceTest {
         when(
             accountRepository.findByIdAndUserId(
                 command.accountId(),
-                command.userId()
+                userId
             )
         ).thenReturn(Optional.of(account));
+        when(currentUser.userId()).thenReturn(userId);
 
         when(
             accountRepository.update(account)
@@ -76,7 +80,7 @@ class UpdateAccountServiceTest {
         verify(accountRepository)
             .findByIdAndUserId(
                 command.accountId(),
-                command.userId()
+                userId
             );
 
         verify(accountRepository)
@@ -106,11 +110,11 @@ class UpdateAccountServiceTest {
         UpdateAccountCommand command =
             new UpdateAccountCommand(
                 accountId,
-                userId,
                 (short) 99,
                 (short) 1,
                 "Updated Account"
             );
+        when(currentUser.userId()).thenReturn(userId);
 
         doThrow(
             new InvalidAccountReferenceException(
@@ -139,7 +143,6 @@ class UpdateAccountServiceTest {
         UpdateAccountCommand command =
             new UpdateAccountCommand(
                 accountId,
-                userId,
                 (short) 1,
                 (short) 1,
                 "Updated Account"
@@ -148,9 +151,10 @@ class UpdateAccountServiceTest {
         when(
             accountRepository.findByIdAndUserId(
                 command.accountId(),
-                command.userId()
+                userId
             )
         ).thenReturn(Optional.empty());
+        when(currentUser.userId()).thenReturn(userId);
 
         assertThrows(
             ResourceNotFoundException.class,
@@ -160,7 +164,7 @@ class UpdateAccountServiceTest {
         verify(accountRepository)
             .findByIdAndUserId(
                 command.accountId(),
-                command.userId()
+                userId
             );
 
         verify(

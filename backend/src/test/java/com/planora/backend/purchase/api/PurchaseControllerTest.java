@@ -1,6 +1,7 @@
 package com.planora.backend.purchase.api;
 
 import com.planora.backend.common.exception.GlobalExceptionHandler;
+import com.planora.backend.common.exception.ResourceNotFoundException;
 import com.planora.backend.common.pagination.PageRequest;
 import com.planora.backend.common.pagination.PageResult;
 import com.planora.backend.purchase.application.cancel.CancelPurchaseUseCase;
@@ -76,6 +77,71 @@ class PurchaseControllerTest {
 
     //GET    /api/purchases
     @Test
+    void shouldIgnoreClientSuppliedUserIdWhenUpdatingPurchase() throws Exception {
+        UUID userId = UUID.randomUUID();
+        UUID purchaseId = UUID.randomUUID();
+        Purchase purchase = Purchase.create(userId, null, "Updated");
+        purchase.setId(purchaseId);
+        UpdatePurchaseCommand command = new UpdatePurchaseCommand(purchaseId, null, "Updated");
+        when(updatePurchaseUseCase.execute(command)).thenReturn(purchase);
+
+        mockMvc.perform(put("/api/purchases/{purchaseId}", purchaseId)
+                .param("userId", UUID.randomUUID().toString())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"notes\": \"Updated\"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(purchaseId.toString()));
+
+        verify(updatePurchaseUseCase).execute(command);
+    }
+
+    @Test
+    void shouldReturn404WhenPurchaseDoesNotExist() throws Exception {
+        UUID purchaseId = UUID.randomUUID();
+        when(getPurchaseByIdUseCase.execute(purchaseId))
+            .thenThrow(new ResourceNotFoundException("Purchase not found"));
+
+        mockMvc.perform(get("/api/purchases/{purchaseId}", purchaseId))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"));
+        verify(getPurchaseByIdUseCase).execute(purchaseId);
+    }
+
+    @Test
+    void shouldRejectInvalidPaginationBeforeCallingUseCase() throws Exception {
+        mockMvc.perform(get("/api/purchases").param("page", "-1"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("INVALID_ARGUMENT"));
+        verifyNoInteractions(getPurchasesUseCase);
+    }
+
+    @Test
+    void shouldRejectZeroItemQuantityBeforeCallingUseCase() throws Exception {
+        mockMvc.perform(post("/api/purchases/{purchaseId}/items", UUID.randomUUID())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"categoryId":"%s","name":"Milk","quantity":0,"unitPrice":5.50}
+                    """.formatted(UUID.randomUUID())))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+            .andExpect(jsonPath("$.errors[0].field").value("quantity"));
+        verifyNoInteractions(addPurchaseItemUseCase);
+    }
+
+    @Test
+    void shouldRejectZeroPaymentBeforeCallingUseCase() throws Exception {
+        mockMvc.perform(post("/api/purchases/{purchaseId}/payments", UUID.randomUUID())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"accountId":"%s","amount":0}
+                    """.formatted(UUID.randomUUID())))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+            .andExpect(jsonPath("$.errors[0].field").value("amount"));
+        verifyNoInteractions(addPurchasePaymentUseCase);
+    }
+
+    @Test
     void shouldGetPurchases() throws Exception {
         UUID userId = UUID.randomUUID();
 
@@ -94,15 +160,12 @@ class PurchaseControllerTest {
         );
 
         when(
-            getPurchasesUseCase.execute(
-                userId,
-                pageRequest
-            )
+            getPurchasesUseCase.execute(pageRequest)
         ).thenReturn(pageResult);
 
         mockMvc.perform(
                 get("/api/purchases")
-                    .param("userId", userId.toString())
+
                     .param("page", "0")
                     .param("size", "10")
             ).andExpect(status().isOk())
@@ -127,7 +190,7 @@ class PurchaseControllerTest {
             );
 
         verify(getPurchasesUseCase)
-            .execute(userId, pageRequest);
+            .execute(pageRequest);
     }
 
     //GET /api/{purchaseId}
@@ -143,15 +206,12 @@ class PurchaseControllerTest {
         );
 
         when(
-            getPurchaseByIdUseCase.execute(
-                userId,
-                purchaseId
-            )
+            getPurchaseByIdUseCase.execute(purchaseId)
         ).thenReturn(purchase);
 
         mockMvc.perform(
                 get("/api/purchases/{purchaseId}", purchaseId)
-                    .param("userId", userId.toString())
+
             )
             .andExpect(status().isOk())
             .andExpect(
@@ -176,10 +236,7 @@ class PurchaseControllerTest {
             );
 
         verify(getPurchaseByIdUseCase)
-            .execute(
-                userId,
-                purchaseId
-            );
+            .execute(purchaseId);
     }
 
     //POST   /api/purchases
@@ -204,18 +261,12 @@ class PurchaseControllerTest {
             );
 
         when(
-            createPurchaseUseCase.execute(
-                userId,
-                command
-            )
+            createPurchaseUseCase.execute(command)
         ).thenReturn(purchase);
 
         mockMvc.perform(
                 post("/api/purchases")
-                    .param(
-                        "userId",
-                        userId.toString()
-                    )
+
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                         {
@@ -248,10 +299,7 @@ class PurchaseControllerTest {
 
         verify(
             createPurchaseUseCase
-        ).execute(
-            userId,
-            command
-        );
+        ).execute(command);
     }
 
     //PUT    /api/purchases/{purchaseId}
@@ -280,7 +328,6 @@ class PurchaseControllerTest {
 
         UpdatePurchaseCommand command = new UpdatePurchaseCommand(
             purchaseId,
-            userId,
             expectedDate,
             "Notes"
         );
@@ -290,7 +337,7 @@ class PurchaseControllerTest {
 
         mockMvc.perform(
                 put("/api/purchases/{purchaseId}", purchaseId)
-                    .param("userId", userId.toString())
+
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                         {
@@ -333,11 +380,11 @@ class PurchaseControllerTest {
 
         mockMvc.perform(
                 delete("/api/purchases/{purchaseId}", purchaseId)
-                    .param("userId", userId.toString())
+
             ).andExpect(status().isNoContent())
             .andExpect(content().string(""));
 
-        verify(deletePurchaseUseCase).execute(userId, purchaseId);
+        verify(deletePurchaseUseCase).execute(purchaseId);
     }
 
     //POST   /api/purchases/{purchaseId}/complete
@@ -375,10 +422,7 @@ class PurchaseControllerTest {
         purchase.complete();
 
         when(
-            completePurchaseUseCase.execute(
-                userId,
-                purchaseId
-            )
+            completePurchaseUseCase.execute(purchaseId)
         ).thenReturn(purchase);
 
         mockMvc.perform(
@@ -386,7 +430,7 @@ class PurchaseControllerTest {
                     "/api/purchases/{purchaseId}/complete",
                     purchaseId
                 )
-                    .param("userId", userId.toString())
+
             )
             .andExpect(status().isOk())
             .andExpect(
@@ -399,7 +443,7 @@ class PurchaseControllerTest {
             );
 
         verify(completePurchaseUseCase)
-            .execute(userId, purchaseId);
+            .execute(purchaseId);
     }
 
     // POST /api/purchases/{purchaseId}/cancel
@@ -418,10 +462,7 @@ class PurchaseControllerTest {
         purchase.cancel();
 
         when(
-            cancelPurchaseUseCase.execute(
-                userId,
-                purchaseId
-            )
+            cancelPurchaseUseCase.execute(purchaseId)
         ).thenReturn(purchase);
 
         mockMvc.perform(
@@ -429,7 +470,7 @@ class PurchaseControllerTest {
                     "/api/purchases/{purchaseId}/cancel",
                     purchaseId
                 )
-                    .param("userId", userId.toString())
+
             )
             .andExpect(status().isOk())
             .andExpect(
@@ -438,7 +479,7 @@ class PurchaseControllerTest {
             );
 
         verify(cancelPurchaseUseCase)
-            .execute(userId, purchaseId);
+            .execute(purchaseId);
     }
 
     // POST /api/purchases/{purchaseId}/items
@@ -455,10 +496,11 @@ class PurchaseControllerTest {
                 "Notes"
             );
 
+        purchase.addItem(PurchaseItem.create(categoryId, "Milk", new BigDecimal("2"), new BigDecimal("5.50")));
+
         AddPurchaseItemCommand command =
             new AddPurchaseItemCommand(
                 purchaseId,
-                userId,
                 categoryId,
                 "Milk",
                 new BigDecimal("2"),
@@ -474,10 +516,7 @@ class PurchaseControllerTest {
                     "/api/purchases/{purchaseId}/items",
                     purchaseId
                 )
-                    .param(
-                        "userId",
-                        userId.toString()
-                    )
+
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                 {
@@ -489,6 +528,8 @@ class PurchaseControllerTest {
                 """.formatted(categoryId))
             )
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.items[0].name").value("Milk"))
+            .andExpect(jsonPath("$.total").value(11.00))
             .andExpect(
                 jsonPath("$.id")
                     .value(purchase.getId().toString())
@@ -515,7 +556,6 @@ class PurchaseControllerTest {
         RemovePurchaseItemCommand command =
             new RemovePurchaseItemCommand(
                 purchaseId,
-                userId,
                 itemId
             );
 
@@ -529,12 +569,10 @@ class PurchaseControllerTest {
                     purchaseId,
                     itemId
                 )
-                    .param(
-                        "userId",
-                        userId.toString()
-                    )
+
             )
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.items").isEmpty())
             .andExpect(
                 jsonPath("$.id")
                     .value(purchase.getId().toString())
@@ -558,10 +596,11 @@ class PurchaseControllerTest {
                 "Notes"
             );
 
+        purchase.addPayment(PurchasePayment.create(accountId, new BigDecimal("25.00")));
+
         AddPurchasePaymentCommand command =
             new AddPurchasePaymentCommand(
                 purchaseId,
-                userId,
                 accountId,
                 new BigDecimal("25.00")
             );
@@ -575,10 +614,7 @@ class PurchaseControllerTest {
                     "/api/purchases/{purchaseId}/payments",
                     purchaseId
                 )
-                    .param(
-                        "userId",
-                        userId.toString()
-                    )
+
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                 {
@@ -588,6 +624,8 @@ class PurchaseControllerTest {
                 """.formatted(accountId))
             )
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.payments[0].accountId").value(accountId.toString()))
+            .andExpect(jsonPath("$.payments[0].amount").value(25.00))
             .andExpect(
                 jsonPath("$.id")
                     .value(purchase.getId().toString())
@@ -614,7 +652,6 @@ class PurchaseControllerTest {
         RemovePurchasePaymentCommand command =
             new RemovePurchasePaymentCommand(
                 purchaseId,
-                userId,
                 paymentId
             );
 
@@ -628,12 +665,10 @@ class PurchaseControllerTest {
                     purchaseId,
                     paymentId
                 )
-                    .param(
-                        "userId",
-                        userId.toString()
-                    )
+
             )
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.payments").isEmpty())
             .andExpect(
                 jsonPath("$.id")
                     .value(purchase.getId().toString())
@@ -669,7 +704,6 @@ class PurchaseControllerTest {
         AddPurchaseItemCommand command =
             new AddPurchaseItemCommand(
                 purchaseId,
-                userId,
                 categoryId,
                 "Keyboard",
                 new BigDecimal("2"),
@@ -685,7 +719,7 @@ class PurchaseControllerTest {
                     "/api/purchases/{purchaseId}/items",
                     purchaseId
                 )
-                    .param("userId", userId.toString())
+
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                 {
@@ -746,7 +780,6 @@ class PurchaseControllerTest {
         RemovePurchaseItemCommand command =
             new RemovePurchaseItemCommand(
                 purchaseId,
-                userId,
                 itemId
             );
 
@@ -760,7 +793,7 @@ class PurchaseControllerTest {
                     purchaseId,
                     itemId
                 )
-                    .param("userId", userId.toString())
+
             )
             .andExpect(status().isOk())
             .andExpect(
@@ -800,7 +833,6 @@ class PurchaseControllerTest {
         AddPurchasePaymentCommand command =
             new AddPurchasePaymentCommand(
                 purchaseId,
-                userId,
                 accountId,
                 new BigDecimal("100.00")
             );
@@ -814,7 +846,7 @@ class PurchaseControllerTest {
                     "/api/purchases/{purchaseId}/payments",
                     purchaseId
                 )
-                    .param("userId", userId.toString())
+
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                 {
@@ -857,7 +889,6 @@ class PurchaseControllerTest {
         RemovePurchasePaymentCommand command =
             new RemovePurchasePaymentCommand(
                 purchaseId,
-                userId,
                 paymentId
             );
 
@@ -871,7 +902,7 @@ class PurchaseControllerTest {
                     purchaseId,
                     paymentId
                 )
-                    .param("userId", userId.toString())
+
             )
             .andExpect(status().isOk())
             .andExpect(

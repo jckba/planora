@@ -7,6 +7,5 @@ import com.planora.backend.common.pagination.PageResult;
 import java.util.UUID;
 
 public interface GetAccountsUseCase {
-
-    PageResult<Account> execute(UUID userId, PageRequest pageRequest);
+    PageResult<Account> execute(PageRequest pageRequest);
 }

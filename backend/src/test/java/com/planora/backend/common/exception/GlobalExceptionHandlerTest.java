@@ -90,8 +90,8 @@ class GlobalExceptionHandlerTest {
                     .value("Resource not found")
             )
             .andExpect(
-                jsonPath("$.errors.length()")
-                    .value(0)
+                jsonPath("$.errors")
+                    .doesNotExist()
             );
     }
     @Test
@@ -109,8 +109,8 @@ class GlobalExceptionHandlerTest {
                     .value("Invalid request")
             )
             .andExpect(
-                jsonPath("$.errors.length()")
-                    .value(0)
+                jsonPath("$.errors")
+                    .doesNotExist()
             );
     }
     @Test

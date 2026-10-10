@@ -5,5 +5,5 @@ import com.planora.backend.account.domain.Account;
 import java.util.UUID;
 
 public interface CreateAccountUseCase {
-    Account execute(UUID userId, CreateAccountCommand command);
+    Account execute(CreateAccountCommand command);
 }

@@ -5,6 +5,7 @@ import com.planora.backend.category.domain.Category;
 import com.planora.backend.category.repository.CategoryRepository;
 import com.planora.backend.common.pagination.PageRequest;
 import com.planora.backend.common.pagination.PageResult;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +24,10 @@ public class GetCategoriesServiceTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private GetCategoriesService getCategoriesService;
 
@@ -48,12 +53,10 @@ public class GetCategoriesServiceTest {
                 pageRequest
             )
         ).thenReturn(expected);
+        when(currentUser.userId()).thenReturn(userId);
 
         PageResult<Category> result =
-            getCategoriesService.execute(
-                userId,
-                pageRequest
-            );
+            getCategoriesService.execute(pageRequest);
 
         assertSame(expected, result);
 

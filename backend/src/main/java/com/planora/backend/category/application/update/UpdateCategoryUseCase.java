@@ -5,9 +5,7 @@ import com.planora.backend.category.domain.Category;
 import java.util.UUID;
 
 public interface UpdateCategoryUseCase {
-
     Category execute(
-        UUID userId,
         UUID categoryId,
         UpdateCategoryCommand command
     );

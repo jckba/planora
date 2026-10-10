@@ -6,5 +6,5 @@ import java.util.UUID;
 
 public interface GetCategoryByIdUseCase {
 
-    Category execute(UUID userId, UUID categoryId);
+    Category execute(UUID categoryId);
 }

@@ -102,6 +102,56 @@ class JooqPurchaseRepositoryTest {
 
     @Test
     @Transactional
+    void shouldPersistUpdatedDetailsAndReplaceItemsAndPayments() {
+        UUID userId = createUserForTest();
+        UUID categoryId = createCategoryForTest(userId);
+        UUID accountId = createAccountForTest(userId);
+        Purchase purchase = Purchase.create(userId, null, "Original");
+        PurchaseItem originalItem = PurchaseItem.create(categoryId, "Old", BigDecimal.ONE, BigDecimal.TEN);
+        PurchasePayment originalPayment = PurchasePayment.create(accountId, BigDecimal.TEN);
+        purchase.addItem(originalItem);
+        purchase.addPayment(originalPayment);
+        purchaseRepository.save(purchase);
+
+        purchase.removeItem(originalItem.getId());
+        purchase.removePayment(originalPayment.getId());
+        PurchaseItem newItem = PurchaseItem.create(categoryId, "New", new BigDecimal("2"), new BigDecimal("15.50"));
+        PurchasePayment newPayment = PurchasePayment.create(accountId, new BigDecimal("31.00"));
+        purchase.addItem(newItem);
+        purchase.addPayment(newPayment);
+        Instant expectedDate = Instant.parse("2026-10-01T12:00:00Z");
+        purchase.updateDetails(expectedDate, "Updated");
+
+        assertSame(purchase, purchaseRepository.update(purchase));
+        Purchase found = purchaseRepository.findByIdAndUserId(purchase.getId(), userId).orElseThrow();
+        assertEquals(1, found.getVersion());
+        assertEquals("Updated", found.getNotes());
+        assertEquals(expectedDate, found.getExpectedDate());
+        assertEquals(0, new BigDecimal("31.00").compareTo(found.getTotal()));
+        assertEquals(1, found.getItems().size());
+        assertEquals(newItem.getId(), found.getItems().getFirst().getId());
+        assertEquals("New", found.getItems().getFirst().getName());
+        assertEquals(0, new BigDecimal("2").compareTo(found.getItems().getFirst().getQuantity()));
+        assertEquals(0, new BigDecimal("15.50").compareTo(found.getItems().getFirst().getUnitPrice()));
+        assertEquals(1, found.getPayments().size());
+        assertEquals(newPayment.getId(), found.getPayments().getFirst().getId());
+        assertEquals(accountId, found.getPayments().getFirst().getAccountId());
+        assertEquals(0, new BigDecimal("31.00").compareTo(found.getPayments().getFirst().getAmount()));
+        assertEquals(0, dsl.fetchCount(PURCHASE_ITEM, PURCHASE_ITEM.ID.eq(originalItem.getId())));
+        assertEquals(0, dsl.fetchCount(PURCHASE_PAYMENT, PURCHASE_PAYMENT.ID.eq(originalPayment.getId())));
+
+        found.removeItem(newItem.getId());
+        found.removePayment(newPayment.getId());
+        purchaseRepository.update(found);
+        Purchase empty = purchaseRepository.findByIdAndUserId(purchase.getId(), userId).orElseThrow();
+        assertTrue(empty.getItems().isEmpty());
+        assertTrue(empty.getPayments().isEmpty());
+        assertEquals(0, BigDecimal.ZERO.compareTo(empty.getTotal()));
+        assertEquals(2, empty.getVersion());
+    }
+
+    @Test
+    @Transactional
     void shouldSavePurchaseWithItemsAndPayments() {
 
         UUID userId = createUserForTest();

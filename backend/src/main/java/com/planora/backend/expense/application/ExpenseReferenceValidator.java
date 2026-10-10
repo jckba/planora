@@ -26,7 +26,5 @@ public class ExpenseReferenceValidator {
         if (categoryRepository.findByIdAndUserId(categoryId, userId).isEmpty()) {
             throw new InvalidExpenseReferenceException("Category not found");
         }
-
     }
-
 }

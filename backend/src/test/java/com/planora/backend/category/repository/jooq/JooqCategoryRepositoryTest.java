@@ -128,11 +128,14 @@ public class JooqCategoryRepositoryTest {
 
     @Test
     @Transactional
-    void shouldFindCategoryById() {
+    void shouldFindCategoryByIdForOwner() {
         Category category = createCategoryForTest();
 
         Optional<Category> result =
-            categoryRepository.findById(category.getId());
+            categoryRepository.findByIdAndUserId(
+                category.getId(),
+                category.getUserId()
+            );
 
         assertTrue(result.isPresent());
 
@@ -149,9 +152,12 @@ public class JooqCategoryRepositoryTest {
 
     @Test
     @Transactional
-    void shouldReturnEmptyWhenCategoryDoesNotExist() {
+    void shouldReturnEmptyWhenCategoryDoesNotExistForUser() {
         Optional<Category> result =
-            categoryRepository.findById(UUID.randomUUID());
+            categoryRepository.findByIdAndUserId(
+                UUID.randomUUID(),
+                UUID.randomUUID()
+            );
 
         assertTrue(result.isEmpty());
     }
@@ -319,7 +325,7 @@ public class JooqCategoryRepositoryTest {
         categoryRepository.save(
             Category.create(
                 userId,
-                "Food",
+                "Transport",
                 "#FF0000",
                 "restaurant"
             )
@@ -328,7 +334,7 @@ public class JooqCategoryRepositoryTest {
         categoryRepository.save(
             Category.create(
                 userId,
-                "Transport",
+                "Food",
                 "#0000FF",
                 "directions_car"
             )
@@ -405,7 +411,7 @@ public class JooqCategoryRepositoryTest {
         categoryRepository.save(
             Category.create(
                 userId,
-                "Food",
+                "Transport",
                 "#FF0000",
                 "restaurant"
             )
@@ -423,7 +429,7 @@ public class JooqCategoryRepositoryTest {
         categoryRepository.save(
             Category.create(
                 userId,
-                "Transport",
+                "Food",
                 "#0000FF",
                 "directions_car"
             )

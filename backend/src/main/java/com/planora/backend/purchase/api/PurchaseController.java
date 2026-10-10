@@ -72,13 +72,12 @@ public class PurchaseController {
 
     @GetMapping
     public PageResponse<PurchaseResponse> getPurchases(
-        @RequestParam UUID userId,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
         ) {
         PageRequest pageRequest = new PageRequest(page, size);
 
-        PageResult<Purchase> result = getPurchasesUseCase.execute(userId, pageRequest);
+        PageResult<Purchase> result = getPurchasesUseCase.execute(pageRequest);
 
         List<PurchaseResponse> content = result.content().stream().map(this::toResponse).toList();
 
@@ -87,36 +86,32 @@ public class PurchaseController {
 
     @GetMapping("/{purchaseId}")
     public PurchaseResponse getPurchaseById(
-        @RequestParam UUID userId,
         @PathVariable UUID purchaseId
     ) {
-        Purchase purchase = getPurchaseByIdUseCase.execute(userId, purchaseId);
+        Purchase purchase = getPurchaseByIdUseCase.execute(purchaseId);
         return toResponse(purchase);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PurchaseResponse createPurchase(
-        @RequestParam UUID userId,
         @Valid @RequestBody CreatePurchaseRequest request
     ) {
         CreatePurchaseCommand command = new CreatePurchaseCommand(
             request.expectedDate(),
             request.notes()
         );
-        Purchase purchase = createPurchaseUseCase.execute(userId, command);
+        Purchase purchase = createPurchaseUseCase.execute(command);
         return toResponse(purchase);
     }
 
     @PutMapping("/{purchaseId}")
     public PurchaseResponse updatePurchase(
-        @RequestParam UUID userId,
         @PathVariable UUID purchaseId,
         @Valid @RequestBody UpdatePurchaseRequest request
     ) {
         UpdatePurchaseCommand command = new UpdatePurchaseCommand(
             purchaseId,
-            userId,
             request.expectedDate(),
             request.notes()
         );
@@ -127,21 +122,18 @@ public class PurchaseController {
     @DeleteMapping("/{purchaseId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePurchase(
-        @RequestParam UUID userId,
         @PathVariable UUID purchaseId
     ) {
-        deletePurchaseUseCase.execute(userId, purchaseId);
+        deletePurchaseUseCase.execute(purchaseId);
     }
 
     @PostMapping("/{purchaseId}/items")
     public PurchaseResponse addItem(
-        @RequestParam UUID userId,
         @PathVariable UUID purchaseId,
         @Valid @RequestBody AddPurchaseItemRequest request
     ) {
         AddPurchaseItemCommand command = new AddPurchaseItemCommand(
             purchaseId,
-            userId,
             request.categoryId(),
             request.name(),
             request.quantity(),
@@ -154,13 +146,11 @@ public class PurchaseController {
 
     @DeleteMapping("/{purchaseId}/items/{itemId}")
     public PurchaseResponse removeItem(
-        @RequestParam UUID userId,
         @PathVariable UUID purchaseId,
         @PathVariable UUID itemId
     ) {
         RemovePurchaseItemCommand command = new RemovePurchaseItemCommand(
             purchaseId,
-            userId,
             itemId
         );
         Purchase purchase = removePurchaseItemUseCase.execute(command);
@@ -169,13 +159,11 @@ public class PurchaseController {
 
     @PostMapping("/{purchaseId}/payments")
     public PurchaseResponse addPayment(
-        @RequestParam UUID userId,
         @PathVariable UUID purchaseId,
         @Valid @RequestBody AddPurchasePaymentRequest request
     ) {
         AddPurchasePaymentCommand command = new AddPurchasePaymentCommand(
             purchaseId,
-            userId,
             request.accountId(),
             request.amount()
         );
@@ -185,13 +173,11 @@ public class PurchaseController {
 
     @DeleteMapping("/{purchaseId}/payments/{paymentId}")
     public PurchaseResponse removePayment(
-        @RequestParam UUID userId,
         @PathVariable UUID purchaseId,
         @PathVariable UUID paymentId
     ) {
         RemovePurchasePaymentCommand command = new RemovePurchasePaymentCommand(
             purchaseId,
-            userId,
             paymentId
         );
         Purchase purchase = removePurchasePaymentUseCase.execute(command);
@@ -200,19 +186,17 @@ public class PurchaseController {
 
     @PostMapping("/{purchaseId}/complete")
     public PurchaseResponse completePurchase(
-        @RequestParam UUID userId,
         @PathVariable UUID purchaseId
     ) {
-        Purchase purchase = completePurchaseUseCase.execute(userId, purchaseId);
+        Purchase purchase = completePurchaseUseCase.execute(purchaseId);
         return toResponse(purchase);
     }
 
     @PostMapping("/{purchaseId}/cancel")
     public PurchaseResponse cancelPurchase(
-        @RequestParam UUID userId,
         @PathVariable UUID purchaseId
     ) {
-        Purchase purchase = cancelPurchaseUseCase.execute(userId, purchaseId);
+        Purchase purchase = cancelPurchaseUseCase.execute(purchaseId);
         return toResponse(purchase);
     }
 

@@ -158,3 +158,11 @@ tasks.test {
     useJUnitPlatform()
     jvmArgs("-javaagent:${mockitoAgent.asPath}")
 }
+
+tasks.bootJar {
+    archiveFileName.set("planora-backend.jar")
+}
+
+tasks.jar {
+    enabled = false
+}

@@ -6,6 +6,7 @@ import com.planora.backend.purchase.application.item.remove.RemovePurchaseItemSe
 import com.planora.backend.purchase.domain.Purchase;
 import com.planora.backend.purchase.domain.PurchaseItem;
 import com.planora.backend.purchase.repository.PurchaseRepository;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,12 +28,16 @@ class RemovePurchaseItemServiceTest {
     @Mock
     private PurchaseRepository purchaseRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private RemovePurchaseItemService removePurchaseItemService;
 
     @Test
     void shouldRemoveItemFromPurchase() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
         UUID categoryId = UUID.randomUUID();
 
@@ -56,7 +61,6 @@ class RemovePurchaseItemServiceTest {
         RemovePurchaseItemCommand command =
             new RemovePurchaseItemCommand(
                 purchaseId,
-                userId,
                 item.getId()
             );
 
@@ -102,13 +106,13 @@ class RemovePurchaseItemServiceTest {
     @Test
     void shouldThrowWhenPurchaseDoesNotExist() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
         UUID itemId = UUID.randomUUID();
 
         RemovePurchaseItemCommand command =
             new RemovePurchaseItemCommand(
                 purchaseId,
-                userId,
                 itemId
             );
 
@@ -141,6 +145,7 @@ class RemovePurchaseItemServiceTest {
     @Test
     void shouldRejectWhenItemDoesNotExist() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         Purchase purchase =
@@ -153,7 +158,6 @@ class RemovePurchaseItemServiceTest {
         RemovePurchaseItemCommand command =
             new RemovePurchaseItemCommand(
                 purchaseId,
-                userId,
                 UUID.randomUUID()
             );
 

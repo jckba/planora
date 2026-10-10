@@ -4,6 +4,7 @@ import com.planora.backend.category.application.create.CreateCategoryCommand;
 import com.planora.backend.category.application.create.CreateCategoryService;
 import com.planora.backend.category.domain.Category;
 import com.planora.backend.category.repository.CategoryRepository;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -22,6 +23,9 @@ public class CreateCategoryServiceTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private CurrentUser currentUser;
 
     @InjectMocks
     private CreateCategoryService createCategoryService;
@@ -45,6 +49,7 @@ public class CreateCategoryServiceTest {
 
         when(categoryRepository.save(any(Category.class)))
             .thenReturn(savedCategory);
+        when(currentUser.userId()).thenReturn(userId);
 
         Category result =
             createCategoryService.execute(command);
@@ -79,6 +84,7 @@ public class CreateCategoryServiceTest {
             "#FF0000",
             "restaurant"
         );
+        when(currentUser.userId()).thenReturn(userId);
 
         assertThrows(
             IllegalArgumentException.class,

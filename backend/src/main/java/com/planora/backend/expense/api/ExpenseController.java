@@ -40,12 +40,10 @@ public class ExpenseController {
 
     @GetMapping
     public PageResponse<ExpenseResponse> getExpenses(
-        @RequestParam UUID userId,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
         PageResult<Expense> result = getExpensesUseCase.execute(
-            userId,
             new PageRequest(page, size)
         );
 
@@ -62,17 +60,15 @@ public class ExpenseController {
 
     @GetMapping("/{expenseId}")
     public ExpenseResponse getExpenseById(
-        @RequestParam UUID userId,
         @PathVariable UUID expenseId
     ) {
-        Expense expense = getExpenseByIdUseCase.execute(userId, expenseId);
+        Expense expense = getExpenseByIdUseCase.execute(expenseId);
         return ExpenseResponse.from(expense);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ExpenseResponse createExpense(
-        @RequestParam UUID userId,
         @Valid @RequestBody CreateExpenseRequest request
     ) {
         CreateExpenseCommand command = new CreateExpenseCommand(
@@ -84,19 +80,17 @@ public class ExpenseController {
             request.expenseDate()
         );
 
-        Expense expense = createExpenseUseCase.execute(userId, command);
+        Expense expense = createExpenseUseCase.execute(command);
 
         return ExpenseResponse.from(expense);
     }
 
     @PutMapping("/{expenseId}")
     public ExpenseResponse updateExpense(
-        @RequestParam UUID userId,
         @PathVariable UUID expenseId,
         @Valid @RequestBody UpdateExpenseRequest request
     ) {
         UpdateExpenseCommand command = new UpdateExpenseCommand(
-            userId,
             expenseId,
             request.accountId(),
             request.categoryId(),
@@ -114,11 +108,8 @@ public class ExpenseController {
     @DeleteMapping("/{expenseId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteExpense(
-        @RequestParam UUID userId,
         @PathVariable UUID expenseId
     ) {
-        deleteExpenseUseCase.execute(
-            userId, expenseId
-        );
+        deleteExpenseUseCase.execute(expenseId);
     }
 }

@@ -41,12 +41,11 @@ public class CategoryController {
 
     @GetMapping
     public PageResponse<CategoryResponse> getCategories(
-        @RequestParam UUID userId,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
         PageRequest pageRequest = new PageRequest(page, size);
-        PageResult<Category> result = getCategoriesUseCase.execute(userId, pageRequest);
+        PageResult<Category> result = getCategoriesUseCase.execute(pageRequest);
         List<CategoryResponse> content = result.content().stream().map(this::toResponse).toList();
 
         return new PageResponse<>(content,
@@ -58,10 +57,9 @@ public class CategoryController {
 
     @GetMapping("/{categoryId}")
     public CategoryResponse getCategoryById(
-        @RequestParam UUID userId,
         @PathVariable UUID categoryId
     ) {
-        Category category = getCategoryByIdUseCase.execute(userId, categoryId);
+        Category category = getCategoryByIdUseCase.execute(categoryId);
         return toResponse(category);
     }
 
@@ -83,13 +81,12 @@ public class CategoryController {
 
     @PutMapping("/{categoryId}")
     public CategoryResponse updateCategory(
-        @RequestParam UUID userId,
         @PathVariable UUID categoryId,
         @Valid @RequestBody UpdateCategoryRequest request
     ) {
         UpdateCategoryCommand command = new UpdateCategoryCommand(request.name(), request.color(), request.icon());
 
-        Category category = updateCategoryUseCase.execute(userId, categoryId, command);
+        Category category = updateCategoryUseCase.execute(categoryId, command);
 
         return toResponse(category);
     }
@@ -97,10 +94,9 @@ public class CategoryController {
     @DeleteMapping("/{categoryId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCategory(
-        @RequestParam UUID userId,
         @PathVariable UUID categoryId
     ) {
-        deleteCategoryUseCase.execute(userId, categoryId);
+        deleteCategoryUseCase.execute(categoryId);
     }
 
     private CategoryResponse toResponse(Category category) {

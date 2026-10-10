@@ -1,6 +1,7 @@
 package com.planora.backend.expense.application;
 
 import com.planora.backend.common.exception.ResourceNotFoundException;
+import com.planora.backend.common.security.CurrentUser;
 import com.planora.backend.expense.application.get.GetExpenseByIdService;
 import com.planora.backend.expense.domain.Expense;
 import com.planora.backend.expense.repository.ExpenseRepository;
@@ -26,6 +27,9 @@ class GetExpenseByIdServiceTest {
     @Mock
     private ExpenseRepository expenseRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private GetExpenseByIdService getExpenseByIdService;
 
@@ -47,7 +51,8 @@ class GetExpenseByIdServiceTest {
         when(
             expenseRepository.findByIdAndUserId(expenseId, userId))
             .thenReturn(Optional.of(expense));
-        Expense result = getExpenseByIdService.execute(userId, expenseId);
+        when(currentUser.userId()).thenReturn(userId);
+        Expense result = getExpenseByIdService.execute(expenseId);
         assertSame(expense, result);
         verify(expenseRepository)
             .findByIdAndUserId(expenseId, userId);
@@ -63,13 +68,11 @@ class GetExpenseByIdServiceTest {
                 userId
             )
         ).thenReturn(Optional.empty());
+        when(currentUser.userId()).thenReturn(userId);
 
         assertThrows(
             ResourceNotFoundException.class,
-            () -> getExpenseByIdService.execute(
-                userId,
-                expenseId
-            )
+            () -> getExpenseByIdService.execute(expenseId)
         );
 
         verify(expenseRepository)

@@ -13,8 +13,6 @@ public interface CategoryRepository {
 
     void update(Category category);
 
-    Optional<Category> findById(UUID id);
-
     Optional<Category> findByIdAndUserId(UUID id, UUID userId);
 
     PageResult<Category> findByUserId(UUID userId, PageRequest pageRequest);

@@ -19,6 +19,8 @@ build/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+infra/docker/secrets
+/infra/docker/.env
 
 ### Eclipse ###
 .apt_generated

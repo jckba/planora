@@ -10,6 +10,7 @@ import com.planora.backend.category.application.update.UpdateCategoryCommand;
 import com.planora.backend.category.application.update.UpdateCategoryUseCase;
 import com.planora.backend.category.domain.Category;
 import com.planora.backend.common.exception.GlobalExceptionHandler;
+import com.planora.backend.common.exception.CategoryNotFoundException;
 import com.planora.backend.common.exception.ResourceNotFoundException;
 import com.planora.backend.common.pagination.PageRequest;
 import com.planora.backend.common.pagination.PageResult;
@@ -64,11 +65,10 @@ class CategoryControllerTest {
 
         PageRequest pageRequest = new PageRequest(0, 10);
         PageResult<Category> pageResult = new PageResult<>(List.of(category), 0, 10, 1);
-        when(getCategoriesUseCase.execute(userId, pageRequest)).thenReturn(pageResult);
+        when(getCategoriesUseCase.execute(pageRequest)).thenReturn(pageResult);
 
         mockMvc.perform(
                 get("/api/categories")
-                    .param("userId", userId.toString())
                     .param("page", "0")
                     .param("size", "10")
             )
@@ -87,7 +87,7 @@ class CategoryControllerTest {
             .andExpect(jsonPath("$.totalElements").value(1));
 
         verify(getCategoriesUseCase)
-            .execute(userId, pageRequest);
+            .execute(pageRequest);
     }
 
     @Test
@@ -104,14 +104,12 @@ class CategoryControllerTest {
 
         when(
             getCategoryByIdUseCase.execute(
-                userId,
                 categoryId
             )
         ).thenReturn(category);
 
         mockMvc.perform(
                 get("/api/categories/{categoryId}", categoryId)
-                    .param("userId", userId.toString())
             )
             .andExpect(status().isOk())
             .andExpect(
@@ -132,7 +130,7 @@ class CategoryControllerTest {
             );
 
         verify(getCategoryByIdUseCase)
-            .execute(userId, categoryId);
+            .execute(categoryId);
     }
 
     @Test
@@ -142,7 +140,6 @@ class CategoryControllerTest {
 
         when(
             getCategoryByIdUseCase.execute(
-                userId,
                 categoryId
             )
         ).thenThrow(
@@ -150,7 +147,6 @@ class CategoryControllerTest {
         );
         mockMvc.perform(
                 get("/api/categories/{categoryId}", categoryId)
-                    .param("userId", userId.toString())
             )
             .andExpect(status().isNotFound())
             .andExpect(
@@ -163,7 +159,7 @@ class CategoryControllerTest {
             );
 
         verify(getCategoryByIdUseCase)
-            .execute(userId, categoryId);
+            .execute(categoryId);
     }
 
     @Test
@@ -191,15 +187,11 @@ class CategoryControllerTest {
             );
 
         when(
-            createCategoryUseCase.execute(
-                eq(userId),
-                eq(command)
-            )
+            createCategoryUseCase.execute(command)
         ).thenReturn(category);
 
         mockMvc.perform(
                 post("/api/categories")
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                 {
@@ -228,15 +220,13 @@ class CategoryControllerTest {
             );
 
         verify(createCategoryUseCase)
-            .execute(userId, command);
+            .execute(command);
     }
 
     @Test
     void shouldRejectCreateCategoryWithoutBody() throws Exception {
-        UUID userId = UUID.randomUUID();
         mockMvc.perform(
             post("/api/categories")
-                .param("userId", userId.toString())
                 .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isBadRequest());
@@ -245,11 +235,8 @@ class CategoryControllerTest {
 
     @Test
     void shouldRejectCreateCategoryWithBlankName() throws Exception {
-        UUID userId = UUID.randomUUID();
-
         mockMvc.perform(
                 post("/api/categories")
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                 {
@@ -278,12 +265,10 @@ class CategoryControllerTest {
 
     @Test
     void shouldRejectUpdateCategoryWithBlankName() throws Exception {
-        UUID userId = UUID.randomUUID();
         UUID categoryId = UUID.randomUUID();
 
         mockMvc.perform(
                 put("/api/categories/{categoryId}", categoryId)
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                 {
@@ -326,7 +311,6 @@ class CategoryControllerTest {
 
         when(
             updateCategoryUseCase.execute(
-                eq(userId),
                 eq(categoryId),
                 eq(command)
             )
@@ -334,7 +318,6 @@ class CategoryControllerTest {
 
         mockMvc.perform(
                 put("/api/categories/{categoryId}", categoryId)
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                 {
@@ -359,20 +342,28 @@ class CategoryControllerTest {
             );
 
         verify(updateCategoryUseCase)
-            .execute(userId, categoryId, command);
+            .execute(categoryId, command);
     }
 
     @Test
     void shouldDeleteCategory() throws Exception {
-        UUID userId = UUID.randomUUID();
         UUID categoryId = UUID.randomUUID();
 
-        mockMvc.perform(delete("/api/categories/{categoryId}", categoryId)
-            .param("userId", userId.toString())
-            )
+        mockMvc.perform(delete("/api/categories/{categoryId}", categoryId))
             .andExpect(status().isNoContent());
 
         verify(deleteCategoryUseCase)
-            .execute(userId, categoryId);
+            .execute(categoryId);
+    }
+
+    @Test
+    void shouldReturn404WhenDeletingMissingCategory() throws Exception {
+        UUID categoryId = UUID.randomUUID();
+        doThrow(new CategoryNotFoundException()).when(deleteCategoryUseCase).execute(categoryId);
+
+        mockMvc.perform(delete("/api/categories/{categoryId}", categoryId))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"));
+        verify(deleteCategoryUseCase).execute(categoryId);
     }
 }

@@ -71,13 +71,12 @@ public class JooqAccountRepository implements AccountRepository {
             )
             .where(
                 ACCOUNT.ID.eq(account.getId())
-            )
-            .and(
-                ACCOUNT.USER_ID.eq(account.getUserId())
-            )
-            .and(
-                ACCOUNT.VERSION.eq(account.getVersion())
-            )
+                    .and(
+                        ACCOUNT.USER_ID.eq(account.getUserId())
+                    )
+                    .and(
+                        ACCOUNT.VERSION.eq(account.getVersion())
+                    ))
             .execute();
 
         if (updatedRows == 0) {
@@ -94,8 +93,8 @@ public class JooqAccountRepository implements AccountRepository {
     @Override
     public void delete(UUID accountId, UUID userId) {
         dsl.deleteFrom(ACCOUNT)
-            .where(ACCOUNT.ID.eq(accountId))
-            .and(ACCOUNT.USER_ID.eq(userId))
+            .where(ACCOUNT.ID.eq(accountId)
+            .and(ACCOUNT.USER_ID.eq(userId)))
             .execute();
     }
 
@@ -110,8 +109,8 @@ public class JooqAccountRepository implements AccountRepository {
     @Override
     public Optional<Account> findByIdAndUserId(UUID id, UUID userId) {
         AccountRecord record = dsl.selectFrom(ACCOUNT)
-            .where(ACCOUNT.ID.eq(id))
-            .and(ACCOUNT.USER_ID.eq(userId))
+            .where(ACCOUNT.ID.eq(id)
+            .and(ACCOUNT.USER_ID.eq(userId)))
             .fetchOne();
         return Optional.ofNullable(record).map(this::mapToAccount);
     }

@@ -3,7 +3,8 @@ package com.planora.backend.category.application;
 import com.planora.backend.category.application.delete.DeleteCategoryService;
 import com.planora.backend.category.domain.Category;
 import com.planora.backend.category.repository.CategoryRepository;
-import com.planora.backend.common.exception.ResourceNotFoundException;
+import com.planora.backend.common.exception.CategoryNotFoundException;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -23,6 +24,9 @@ public class DeleteCategoryServiceTest {
     @Mock
     private CategoryRepository categoryRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private DeleteCategoryService deleteCategoryService;
 
@@ -37,6 +41,7 @@ public class DeleteCategoryServiceTest {
             "#FF0000",
             "restaurant"
         );
+        when(currentUser.userId()).thenReturn(userId);
 
         when(
             categoryRepository.findByIdAndUserId(
@@ -45,7 +50,7 @@ public class DeleteCategoryServiceTest {
             )
         ).thenReturn(Optional.of(category));
 
-        deleteCategoryService.execute(userId, categoryId);
+        deleteCategoryService.execute(categoryId);
 
         ArgumentCaptor<Category> captor =
             ArgumentCaptor.forClass(Category.class);
@@ -62,6 +67,7 @@ public class DeleteCategoryServiceTest {
     void shouldThrowWhenCategoryDoesNotExist() {
         UUID userId = UUID.randomUUID();
         UUID categoryId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
 
         when(
             categoryRepository.findByIdAndUserId(
@@ -71,11 +77,8 @@ public class DeleteCategoryServiceTest {
         ).thenReturn(Optional.empty());
 
         assertThrows(
-            ResourceNotFoundException.class,
-            () -> deleteCategoryService.execute(
-                userId,
-                categoryId
-            )
+            CategoryNotFoundException.class,
+            () -> deleteCategoryService.execute(categoryId)
         );
 
         verify(categoryRepository, never()).update(any(Category.class));

@@ -48,7 +48,6 @@ public class JooqExpenseRepository implements ExpenseRepository {
 
     @Override
     public Expense update(Expense expense) {
-
         int updatedRows = dsl.update(EXPENSE)
             .set(EXPENSE.ACCOUNT_ID, expense.getAccountId())
             .set(EXPENSE.CATEGORY_ID, expense.getCategoryId())
@@ -58,14 +57,15 @@ public class JooqExpenseRepository implements ExpenseRepository {
             .set(EXPENSE.EXPENSE_DATE, OffsetDateTime.ofInstant(expense.getExpenseDate(), ZoneOffset.UTC))
             .set(EXPENSE.UPDATED_AT, OffsetDateTime.ofInstant(expense.getUpdatedAt(), ZoneOffset.UTC))
             .set(EXPENSE.VERSION, expense.getVersion() + 1)
-            .where(EXPENSE.ID.eq(expense.getId()))
-            .and(EXPENSE.VERSION.eq(expense.getVersion()))
+            .where(EXPENSE.ID.eq(expense.getId())
+                .and(EXPENSE.USER_ID.eq(expense.getUserId()))
+                .and(EXPENSE.DELETED_AT.isNull())
+                .and(EXPENSE.VERSION.eq(expense.getVersion()))
+            )
             .execute();
         if (updatedRows == 0) {
             throw new OptimisticLockException("Expense was modified by another transaction");
         }
-
-
         expense.setVersion(expense.getVersion() + 1);
         return expense;
     }
@@ -86,7 +86,7 @@ public class JooqExpenseRepository implements ExpenseRepository {
                 .and(EXPENSE.USER_ID.eq(expense.getUserId()))
                 .and(EXPENSE.DELETED_AT.isNull())
                 .and(EXPENSE.VERSION.eq(expense.getVersion())))
-                .execute();
+            .execute();
         if (updatedRows == 0) {
             throw new OptimisticLockException("Expense was modified by another transaction");
         }
@@ -94,20 +94,11 @@ public class JooqExpenseRepository implements ExpenseRepository {
     }
 
     @Override
-    public Optional<Expense> findById(UUID id) {
-        ExpenseRecord record = dsl.selectFrom(EXPENSE)
-            .where(EXPENSE.ID.eq(id))
-            .and(EXPENSE.DELETED_AT.isNull())
-            .fetchOne();
-        return Optional.ofNullable(record).map(this::mapToExpense);
-    }
-
-    @Override
     public Optional<Expense> findByIdAndUserId(UUID id, UUID userId) {
         ExpenseRecord record = dsl.selectFrom(EXPENSE)
             .where(EXPENSE.ID.eq(id)
-                .and(EXPENSE.USER_ID.eq(userId)))
-            .and(EXPENSE.DELETED_AT.isNull())
+                .and(EXPENSE.USER_ID.eq(userId))
+                .and(EXPENSE.DELETED_AT.isNull()))
             .fetchOne();
 
         return Optional.ofNullable(record).map(this::mapToExpense);
@@ -118,8 +109,8 @@ public class JooqExpenseRepository implements ExpenseRepository {
         int offset = pageRequest.page() * pageRequest.size();
 
         List<ExpenseRecord> records = dsl.selectFrom(EXPENSE)
-            .where(EXPENSE.USER_ID.eq(userId))
-            .and(EXPENSE.DELETED_AT.isNull())
+            .where(EXPENSE.USER_ID.eq(userId)
+                .and(EXPENSE.DELETED_AT.isNull()))
             .orderBy(EXPENSE.EXPENSE_DATE.desc(), EXPENSE.ID.desc())
             .limit(pageRequest.size())
             .offset(offset)
@@ -131,8 +122,8 @@ public class JooqExpenseRepository implements ExpenseRepository {
 
         long totalElements = dsl.selectCount()
             .from(EXPENSE)
-            .where(EXPENSE.USER_ID.eq(userId))
-            .and(EXPENSE.DELETED_AT.isNull())
+            .where(EXPENSE.USER_ID.eq(userId)
+                .and(EXPENSE.DELETED_AT.isNull()))
             .fetchOptional(0, Long.class)
             .orElse(0L);
 

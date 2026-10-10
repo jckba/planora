@@ -6,6 +6,7 @@ import com.planora.backend.purchase.application.payment.add.AddPurchasePaymentSe
 import com.planora.backend.purchase.domain.Purchase;
 import com.planora.backend.purchase.domain.PurchasePayment;
 import com.planora.backend.purchase.repository.PurchaseRepository;
+import com.planora.backend.common.security.CurrentUser;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,12 +28,16 @@ class AddPurchasePaymentServiceTest {
     @Mock
     private PurchaseRepository purchaseRepository;
 
+    @Mock
+    private CurrentUser currentUser;
+
     @InjectMocks
     private AddPurchasePaymentService addPurchasePaymentService;
 
     @Test
     void shouldAddPaymentToPurchase() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
 
@@ -46,7 +51,6 @@ class AddPurchasePaymentServiceTest {
         AddPurchasePaymentCommand command =
             new AddPurchasePaymentCommand(
                 purchaseId,
-                userId,
                 accountId,
                 new BigDecimal("100.00")
             );
@@ -104,12 +108,12 @@ class AddPurchasePaymentServiceTest {
     @Test
     void shouldThrowWhenPurchaseDoesNotExist() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
 
         AddPurchasePaymentCommand command =
             new AddPurchasePaymentCommand(
                 purchaseId,
-                userId,
                 UUID.randomUUID(),
                 new BigDecimal("100.00")
             );
@@ -143,6 +147,7 @@ class AddPurchasePaymentServiceTest {
     @Test
     void shouldRejectDuplicateAccount() {
         UUID userId = UUID.randomUUID();
+        when(currentUser.userId()).thenReturn(userId);
         UUID purchaseId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
 
@@ -163,7 +168,6 @@ class AddPurchasePaymentServiceTest {
         AddPurchasePaymentCommand command =
             new AddPurchasePaymentCommand(
                 purchaseId,
-                userId,
                 accountId,
                 new BigDecimal("50.00")
             );

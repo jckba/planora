@@ -5,5 +5,5 @@ import com.planora.backend.purchase.domain.Purchase;
 import java.util.UUID;
 
 public interface GetPurchaseByIdUseCase {
-    Purchase execute(UUID userId, UUID purchaseId);
+    Purchase execute(UUID purchaseId);
 }

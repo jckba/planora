@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public interface GetCategoriesUseCase {
 
-    PageResult<Category> execute(UUID userId, PageRequest pageRequest);
+    PageResult<Category> execute(PageRequest pageRequest);
 }

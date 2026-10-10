@@ -67,7 +67,6 @@ class AccountControllerTest {
 
         when(
             getAccountByIdUseCase.execute(
-                userId,
                 accountId
             )
         ).thenReturn(account);
@@ -77,7 +76,6 @@ class AccountControllerTest {
                     "/api/accounts/{accountId}",
                     accountId
                 )
-                    .param("userId", userId.toString())
             )
             .andExpect(status().isOk())
             .andExpect(
@@ -102,17 +100,15 @@ class AccountControllerTest {
             );
 
         verify(getAccountByIdUseCase)
-            .execute(userId, accountId);
+            .execute(accountId);
     }
 
     @Test
     void shouldReturn404WhenAccountDoesNotExist() throws Exception {
-        UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
 
         when(
             getAccountByIdUseCase.execute(
-                userId,
                 accountId
             )
         ).thenThrow(
@@ -124,7 +120,6 @@ class AccountControllerTest {
                     "/api/accounts/{accountId}",
                     accountId
                 )
-                    .param("userId", userId.toString())
             )
             .andExpect(status().isNotFound())
             .andExpect(
@@ -137,7 +132,7 @@ class AccountControllerTest {
             );
 
         verify(getAccountByIdUseCase)
-            .execute(userId, accountId);
+            .execute(accountId);
     }
 
     @Test
@@ -153,19 +148,17 @@ class AccountControllerTest {
 
         CreateAccountCommand command =
             new CreateAccountCommand(
-                userId,
                 (short) 1,
                 (short) 1,
                 "My Account"
             );
 
         when(
-            createAccountUseCase.execute(userId, command)
+            createAccountUseCase.execute(command)
         ).thenReturn(account);
 
         mockMvc.perform(
                 post("/api/accounts")
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                 {
@@ -198,16 +191,13 @@ class AccountControllerTest {
             );
 
         verify(createAccountUseCase)
-            .execute(userId, command);
+            .execute(command);
     }
 
     @Test
     void shouldRejectCreateAccountWithoutBody() throws Exception {
-        UUID userId = UUID.randomUUID();
-
         mockMvc.perform(
                 post("/api/accounts")
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isBadRequest());
@@ -239,14 +229,12 @@ class AccountControllerTest {
 
         when(
             getAccountsUseCase.execute(
-                userId,
                 pageRequest
             )
         ).thenReturn(pageResult);
 
         mockMvc.perform(
                 get("/api/accounts")
-                    .param("userId", userId.toString())
                     .param("page", "0")
                     .param("size", "10")
             )
@@ -281,7 +269,7 @@ class AccountControllerTest {
             );
 
         verify(getAccountsUseCase)
-            .execute(userId, pageRequest);
+            .execute(pageRequest);
     }
 
     @Test
@@ -298,7 +286,6 @@ class AccountControllerTest {
 
         UpdateAccountCommand command =
             new UpdateAccountCommand(
-                userId,
                 accountId,
                 (short) 1,
                 (short) 1,
@@ -311,7 +298,6 @@ class AccountControllerTest {
 
         mockMvc.perform(
                 put("/api/accounts/{accountId}", accountId)
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                 {
@@ -343,12 +329,10 @@ class AccountControllerTest {
     void shouldReturn404WhenUpdatingNonExistingAccount()
         throws Exception {
 
-        UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
 
         UpdateAccountCommand command =
             new UpdateAccountCommand(
-                userId,
                 accountId,
                 (short) 1,
                 (short) 1,
@@ -363,7 +347,6 @@ class AccountControllerTest {
 
         mockMvc.perform(
                 put("/api/accounts/{accountId}", accountId)
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                 {
@@ -391,12 +374,10 @@ class AccountControllerTest {
     void shouldReturn409WhenAccountWasModifiedConcurrently()
         throws Exception {
 
-        UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
 
         UpdateAccountCommand command =
             new UpdateAccountCommand(
-                userId,
                 accountId,
                 (short) 1,
                 (short) 1,
@@ -413,7 +394,6 @@ class AccountControllerTest {
 
         mockMvc.perform(
                 put("/api/accounts/{accountId}", accountId)
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                 {
@@ -441,38 +421,34 @@ class AccountControllerTest {
 
     @Test
     void shouldDeleteAccount() throws Exception {
-        UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
 
         doNothing().when(deleteAccountUseCase)
-            .execute(userId, accountId);
+            .execute(accountId);
 
         mockMvc.perform(
                 delete("/api/accounts/{accountId}", accountId)
-                    .param("userId", userId.toString())
             )
             .andExpect(status().isNoContent());
 
         verify(deleteAccountUseCase)
-            .execute(userId, accountId);
+            .execute(accountId);
     }
 
     @Test
     void shouldReturn404WhenDeletingNonExistingAccount()
         throws Exception {
 
-        UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
 
         doThrow(
             new ResourceNotFoundException("Account not found")
         )
             .when(deleteAccountUseCase)
-            .execute(userId, accountId);
+            .execute(accountId);
 
         mockMvc.perform(
                 delete("/api/accounts/{accountId}", accountId)
-                    .param("userId", userId.toString())
             )
             .andExpect(status().isNotFound())
             .andExpect(
@@ -485,18 +461,15 @@ class AccountControllerTest {
             );
 
         verify(deleteAccountUseCase)
-            .execute(userId, accountId);
+            .execute(accountId);
     }
 
     @Test
     void shouldReturn400WhenAccountTypeDoesNotExist()
         throws Exception {
 
-        UUID userId = UUID.randomUUID();
-
         when(
             createAccountUseCase.execute(
-                eq(userId),
                 any(CreateAccountCommand.class)
             )
         ).thenThrow(
@@ -507,7 +480,6 @@ class AccountControllerTest {
 
         mockMvc.perform(
                 post("/api/accounts")
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                 {
@@ -532,12 +504,10 @@ class AccountControllerTest {
     void shouldReturn400WhenCurrencyDoesNotExist()
         throws Exception {
 
-        UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
 
         UpdateAccountCommand command =
             new UpdateAccountCommand(
-                userId,
                 accountId,
                 (short) 1,
                 (short) 99,
@@ -554,7 +524,6 @@ class AccountControllerTest {
 
         mockMvc.perform(
                 put("/api/accounts/{accountId}", accountId)
-                    .param("userId", userId.toString())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                 {

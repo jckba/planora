@@ -1,10 +1,8 @@
 package com.planora.backend.account.application;
 
-import com.planora.backend.account.repository.AccountRepository;
 import com.planora.backend.accounttype.repository.AccountTypeRepository;
 import com.planora.backend.common.exception.InvalidAccountReferenceException;
 import com.planora.backend.currency.repository.CurrencyRepository;
-import com.planora.persistence.jooq.tables.AccountType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,15 +33,17 @@ class AccountReferenceValidatorTest {
         ).thenReturn(true);
 
         when(
-            currencyRepository.existsById((short) 1)
+            currencyRepository.existsById((short) 2)
         ).thenReturn(true);
 
         assertDoesNotThrow(
             () -> validator.validate(
                 (short) 1,
-                (short) 1
+                (short) 2
             )
         );
+        verify(accountTypeRepository).existsById((short) 1);
+        verify(currencyRepository).existsById((short) 2);
     }
 
     @Test
