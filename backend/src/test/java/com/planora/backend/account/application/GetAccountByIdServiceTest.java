@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
+// Test Unitario
 @ExtendWith(MockitoExtension.class)
 class GetAccountByIdServiceTest {
 
@@ -31,8 +31,10 @@ class GetAccountByIdServiceTest {
     @InjectMocks
     private GetAccountByIdService getAccountByIdService;
 
+    //TODO accountId no used in account.create()
     @Test
     void shouldFindAccountById() {
+        // Arrange
         UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
 
@@ -45,10 +47,11 @@ class GetAccountByIdServiceTest {
 
         when(accountRepository.findByIdAndUserId(accountId, userId))
             .thenReturn(Optional.of(account));
+
         when(currentUser.userId()).thenReturn(userId);
-
+        // Act
         Account result = getAccountByIdService.execute(accountId);
-
+        // Assert
         assertSame(account, result);
 
         verify(accountRepository).findByIdAndUserId(accountId, userId);
@@ -61,6 +64,7 @@ class GetAccountByIdServiceTest {
 
         when(accountRepository.findByIdAndUserId(accountId, userId))
             .thenReturn(Optional.empty());
+
         when(currentUser.userId()).thenReturn(userId);
 
         assertThrows(

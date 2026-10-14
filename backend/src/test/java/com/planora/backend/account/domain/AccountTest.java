@@ -8,9 +8,8 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AccountTest {
+class AccountTest {
 
-    //Create test
     @Test
     void shouldCreateValidAccount() {
         UUID userId = UUID.randomUUID();
@@ -31,7 +30,6 @@ public class AccountTest {
         assertEquals(accountTypeId, account.getAccountTypeId());
         assertEquals(currencyId, account.getCurrencyId());
         assertEquals(name, account.getName());
-
         assertEquals(
             0,
             BigDecimal.ZERO.compareTo(account.getBalance())

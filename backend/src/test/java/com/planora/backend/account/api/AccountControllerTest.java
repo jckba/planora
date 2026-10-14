@@ -29,8 +29,8 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
+// Junit5 Mockito & Spring MVC Test
+// Arrange – Act – Assert (AAA).
 @WebMvcTest(AccountController.class)
 @Import(GlobalExceptionHandler.class)
 class AccountControllerTest {
@@ -52,7 +52,7 @@ class AccountControllerTest {
 
     @MockitoBean
     private DeleteAccountUseCase deleteAccountUseCase;
-
+    //TODO accountId no se utiliza en create y espera que contenga accountId. La peticion solicita la misma cuenta que devuelve el mock?
     @Test
     void shouldGetAccountById() throws Exception {
         UUID userId = UUID.randomUUID();

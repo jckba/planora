@@ -64,8 +64,7 @@ public class Account {
     public void update(
         Short accountTypeId,
         Short currencyId,
-        String name)
-    {
+        String name) {
         this.accountTypeId = accountTypeId;
         this.currencyId = currencyId;
         this.name = name;
@@ -75,7 +74,5 @@ public class Account {
     public static Account restore(UUID id, UUID userId, Short accountTypeId, Short currencyId, String name, BigDecimal balance, Instant createdAt, Instant updatedAt, Integer version) {
         return new Account(id, userId, accountTypeId, currencyId, name, balance, createdAt, updatedAt, version);
     }
-
-
 }
 
