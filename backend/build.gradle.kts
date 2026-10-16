@@ -59,7 +59,7 @@ jooq {
                 inputSchema = "planora"
 
                 includes = ".*"
-                excludes = "flyway_schema_history"
+                excludes = "(?i:flyway_schema_history|regexp_matches|regexp_split_to_table)"
 
 
                 forcedTypes {
@@ -111,18 +111,26 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation(libs.spring.security)
 
+    implementation(libs.jjwt.api)
+    implementation(libs.spring.security.oauth2.resource.server)
+    implementation(libs.spring.security.oauth2.client)
+
+
     jooqCodegen(libs.postgresql)
 
     runtimeOnly(libs.flyway.postgresql)
     runtimeOnly(libs.postgresql)
+    runtimeOnly(libs.jjwt.impl)
+    runtimeOnly(libs.jjwt.jackson)
 
     annotationProcessor(libs.lombok)
 
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
     testImplementation(platform(libs.spring.bom))
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation(libs.spring.starter.test)
+    testImplementation(libs.spring.starter.webmvc.test)
+    testImplementation(libs.spring.security.test)
 
     mockitoAgent("org.mockito:mockito-core:5.21.0") {
         isTransitive = false

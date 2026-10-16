@@ -32,6 +32,13 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
       POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      PLANORA_JWT_PRIVATE_KEY_LOCATION: file:/run/secrets/jwt_private
+      PLANORA_JWT_PUBLIC_KEY_LOCATION: file:/run/secrets/jwt_public
+
+    secrets:
+      - jwt_private
+      - jwt_public
+
     ports:
       - "8080:8080"
     depends_on:
@@ -46,6 +53,14 @@ volumes:
 networks:
   planora-network:
     driver: bridge
+
+secrets:
+  jwt_private:
+    file: ./secrets/jwt-private.pem
+
+  jwt_public:
+    file: ./secrets/jwt-public.pem
+
 
 
 

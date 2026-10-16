@@ -42,19 +42,25 @@ public class JooqUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findById(UUID id) {
-        AppUserRecord record = dsl.selectFrom(APP_USER)
+        return dsl.selectFrom(APP_USER)
             .where(APP_USER.ID.eq(id))
-            .fetchOne();
-        return Optional.ofNullable(record)
+            .fetchOptional()
             .map(this::mapToUser);
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
-        AppUserRecord record = dsl.selectFrom(APP_USER)
+        return dsl.selectFrom(APP_USER)
             .where(APP_USER.EMAIL.eq(email))
-            .fetchOne();
-        return Optional.ofNullable(record)
+            .fetchOptional()
+            .map(this::mapToUser);
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return dsl.selectFrom(APP_USER)
+            .where(APP_USER.USERNAME.eq(username))
+            .fetchOptional()
             .map(this::mapToUser);
     }
 

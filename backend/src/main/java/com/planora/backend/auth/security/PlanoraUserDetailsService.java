@@ -3,6 +3,7 @@ package com.planora.backend.auth.security;
 import com.planora.backend.auth.domain.User;
 import com.planora.backend.auth.repository.UserRepository;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@NullMarked
 public class PlanoraUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
@@ -21,10 +23,18 @@ public class PlanoraUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
 
-        User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        String value = identifier.trim();
+
+        User user = (value.contains("@")
+            ? userRepository.findByEmail(value)
+            : userRepository.findByUsername(value))
+            .orElseThrow(() ->
+                new UsernameNotFoundException(
+                    "Invalid credentials"
+                )
+            );
 
         return new PlanoraUserPrincipal(
             user.getId(),

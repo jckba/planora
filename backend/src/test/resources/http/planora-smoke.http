@@ -1,0 +1,17 @@
+### Register a new user
+
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+    "username": "jckba",
+    "email": "jckba@example.com",
+    "password": "jckba123!",
+    "firstName": "Jose",
+    "lastName": "Cabanillas",
+    "primaryCurrencyId": 1
+}
+
+### Obtener datos protegidos de la API
+GET http://localhost:8080/api/auth/me
+Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJzdWIiOiI3NTI2M2NjNy04MmM1LTQzNzUtOGRhZC1lYjI3MDcxZjAwM2MiLCJpYXQiOjE3OTIxMjIwNDcsImV4cCI6MTc5MjEyMjk0N30.MvNp43_FKyzZ6AK0Ji4rkyCgJVZWWUO2dFDmLyjGijECIc4H8tAdPkTuuUCGFjtOawJdt522BWEzL_Aw2VQovqy9ZP0sStflNQdZFpb9JmeVEOLlknZ_i8THWoVO_U_MtmHGdAdtec7hLQtefSJF34329sWg215n9rB2CkgoOxtilm4uUqRDUFcD6tKOAJGhr_ng1DnVgnAp5TCGLbArHipAM6--EtXk0E0ct_63xmJ3zHX3usTJqDy0-NgQCR4nGAbmlnmA40bYQ4Ojqv_bG1S0IhDtlRN-WBNP172i6F5q6XPeo-m95CHRiQ5iKgC2k0kNJxDZozEteRF8rp_tIg
