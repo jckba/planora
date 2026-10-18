@@ -109,6 +109,56 @@ El catálogo inicial contiene PEN (`1`), USD (`2`) y EUR (`3`). Todavía no hay 
 
 La configuración de seguridad es stateless y protege las rutas de negocio. El login no emite token ni conserva sesión, por lo que todavía no es posible completar el flujo autenticado desde un cliente normal.
 
+### Authentication y Security
+Planora soporta autenticación local y autenticación por Google mediante OpenID Connect.
+
+Métodos de autenticación
+Email y password
+Username y password
+Google OpenID Connect usando flujo de Authorization Code
+
+### JWT security
+Planora issues its own JWT access tokens after successful authentication.
+
+Signing algorithm: RS256.
+Access token expiration: 15 minutes.
+Subject: internal user UUID.
+Token validation: signature, issuer, expiration and UUID subject.
+Protected endpoints: Spring Security OAuth2 Resource Server.
+
+### Google authentication
+Google identities are linked to local users through the external_identity table.
+
+New users complete an onboarding process.
+Existing linked users receive Planora JWTs.
+Existing local accounts require authenticated linking.
+Google ID tokens are not used as Planora API access tokens.
+A short-lived server-side session is used to complete the Google login exchange.
+
+### Persistence
+Authentication data is persisted using PostgreSQL and jOOQ. Database changes are managed through Flyway.
+
+### Security
+The project includes unit and HTTP tests for JWT validation, local authentication and Google account resolution.
+
+Environment configuration
+
+Required Google OAuth2 configuration:
+
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+PLANORA_FRONTEND_ORIGIN
+
+JWT signing and verification keys are supplied externally and must not be committed to the repository.
+
+Planned production hardening
+
+Refresh-token rotation and revocation.
+Distributed session storage when required.
+Login rate limiting.
+Password recovery and account management.
+Integration and end-to-end security testing.
+
 ## Tests
 
 La suite Java está en `backend/src/test/java`: dominio, servicios y validadores

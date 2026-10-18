@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -54,6 +55,7 @@ class AccountControllerTest {
     private DeleteAccountUseCase deleteAccountUseCase;
     //TODO accountId no se utiliza en create y espera que contenga accountId. La peticion solicita la misma cuenta que devuelve el mock?
     @Test
+    @WithMockUser
     void shouldGetAccountById() throws Exception {
         UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();

@@ -32,7 +32,8 @@ public class JooqUserRepository implements UserRepository {
             .set(APP_USER.FIRST_NAME, user.getFirstName())
             .set(APP_USER.LAST_NAME, user.getLastName())
             .set(APP_USER.PRIMARY_CURRENCY_ID, user.getPrimaryCurrencyId())
-            .set(APP_USER.PASSWORD_UPDATED_AT, OffsetDateTime.ofInstant(user.getPasswordUpdatedAt(), ZoneOffset.UTC))
+            .set(APP_USER.PASSWORD_UPDATED_AT, user.getPasswordUpdatedAt() == null
+            ? null : OffsetDateTime.ofInstant(user.getPasswordUpdatedAt(), ZoneOffset.UTC))
             .set(APP_USER.CREATED_AT, OffsetDateTime.ofInstant(user.getCreatedAt(), ZoneOffset.UTC))
             .set(APP_USER.UPDATED_AT, OffsetDateTime.ofInstant(user.getUpdatedAt(), ZoneOffset.UTC))
             .set(APP_USER.VERSION, user.getVersion())
@@ -89,7 +90,8 @@ public class JooqUserRepository implements UserRepository {
             record.getFirstName(),
             record.getLastName(),
             record.getPrimaryCurrencyId(),
-            record.getPasswordUpdatedAt().toInstant(),
+            record.getPasswordUpdatedAt() == null
+            ? null : record.getPasswordUpdatedAt().toInstant(),
             record.getCreatedAt().toInstant(),
             record.getUpdatedAt().toInstant(),
             record.getVersion()

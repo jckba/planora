@@ -13,6 +13,18 @@ spring:
       - planora
     default-schema: planora
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - openid
+              - profile
+              - email
+
 planora:
   security:
     jwt:
@@ -21,5 +33,15 @@ planora:
       private-key-location: ${PLANORA_JWT_PRIVATE_KEY_LOCATION:file:../infra/docker/secrets/jwt-private.pem}
       public-key-location: ${PLANORA_JWT_PUBLIC_KEY_LOCATION:file:../infra/docker/secrets/jwt-public.pem}
 
+    google:
+      frontend-origin: ${PLANORA_FRONTEND_ORIGIN:http://localhost:4200}
 
+server:
+  servlet:
+    session:
+      timeout: 30m
+      cookie:
+        secure: true
+        http-only: true
+        same-site: lax
 #debug: true

@@ -36,10 +36,17 @@ public class PlanoraUserDetailsService implements UserDetailsService {
                 )
             );
 
+        String passwordHash = user.getPasswordHash();
+
+        if (passwordHash == null) {
+            throw new UsernameNotFoundException("Invalid credentials");
+        }
+
+
         return new PlanoraUserPrincipal(
             user.getId(),
             user.getEmail(),
-            user.getPasswordHash(),
+            passwordHash,
             List.of(new SimpleGrantedAuthority("USER"))
         );
     }
