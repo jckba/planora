@@ -1,23 +1,20 @@
 <div class="login-container">
   <div class="login-card">
-    <h1>Iniciar Sesion</h1>
+    <h1>Iniciar Sesión</h1>
     <p class="login-subtitle">Accede a tu cuenta de Planora</p>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="form-field">
-        <label for="email">Correo electronico</label>
+        <label for="identifier">Correo electrónico o nombre de usuario</label>
         <input
-          id="email"
-          type="email"
-          formControlName="email"
-          placeholder="email@example.com"
+          id="identifier"
+          type="text"
+          formControlName="identifier"
+          placeholder="email@example.com o nombre de usuario"
+          autocomplete="username"
         />
-        @if (loginForm.controls.email.touched && loginForm.controls.email.hasError('required')) {
-          <small class="error-message">El correo electrónico es obligatorio.</small>
-        }
-
-        @if (loginForm.controls.email.touched && loginForm.controls.email.hasError('email')) {
-          <small class="error-message">Introduce un correo electrónico válido.</small>
+        @if (loginForm.controls.identifier.touched && loginForm.controls.identifier.hasError('required')) {
+          <small class="error-message">El correo electrónico o nombre de usuario es obligatorio.</small>
         }
       </div>
 
@@ -28,6 +25,7 @@
           type="password"
           formControlName="password"
           placeholder="Introduce tu contraseña"
+          autocomplete="current-password"
         />
 
         @if (loginForm.controls.password.touched && loginForm.controls.password.hasError('required')) {
@@ -35,9 +33,33 @@
         }
       </div>
 
-      <button type="submit">Iniciar Sesion</button>
+      @if (errorMessage) {
+        <p class="error-message" role="alert">
+          {{ errorMessage }}
+        </p>
+      }
+
+      @if (successMessage) {
+        <p role="status">
+          {{ successMessage }}
+        </p>
+      }
+
+      <button type="submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Iniciando Sesión...' : 'Iniciar Sesión' }}
+      </button>
     </form>
 
-  </div>
+    <div class="google-login">
+      <button
+        type="button"
+        class="google-button"
+        (click)="loginWithGoogle()"
+      >
+        Continuar con Google
+      </button>
 
+    </div>
+
+  </div>
 </div>

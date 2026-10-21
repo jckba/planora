@@ -1,0 +1,133 @@
+
+<div class="registration-container">
+  <section class="registration-card">
+    <h1>Completa tu cuenta</h1>
+    <p>Tu cuenta de Google se utilizará para iniciar sesión en Planora.</p>
+
+    <div class="form-field">
+      <label for="googleEmail">Correo de Google</label>
+      <input id="googleEmail" type="email" [value]="email" readonly />
+    </div>
+
+    <form
+      [formGroup]="registrationForm"
+      (ngSubmit)="onSubmit()"
+    >
+      <div class="form-field">
+        <label for="username">Nombre de usuario</label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          autocomplete="username"
+          placeholder="Ej. ana.garcia"
+        />
+
+        @if (
+          registrationForm.controls.username.touched &&
+          registrationForm.controls.username.invalid
+          ) {
+          <small class="error-message">
+            Usa entre 3 y 40 caracteres: letras, números, puntos,
+            guiones o guiones bajos.
+          </small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="firstName">Nombre(s)</label>
+        <input
+          id="firstName"
+          type="text"
+          formControlName="firstName"
+          autocomplete="given-name"
+        />
+
+        @if (
+          registrationForm.controls.firstName.touched &&
+          registrationForm.controls.firstName.invalid
+          ) {
+          <small class="error-message">
+            El nombre es obligatorio y admite hasta 100 caracteres.
+          </small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="lastName">Apellido(s)</label>
+        <input
+          id="lastName"
+          type="text"
+          formControlName="lastName"
+          autocomplete="family-name"
+        />
+
+        @if (
+          registrationForm.controls.lastName.touched &&
+          registrationForm.controls.lastName.invalid
+          ) {
+          <small class="error-message">
+            Los apellidos son obligatorios y admiten hasta 100 caracteres.
+          </small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="currency">Moneda principal</label>
+
+        <select
+          id="currency"
+          formControlName="primaryCurrencyId"
+        >
+          <option [ngValue]="null" disabled>
+            Selecciona una moneda
+          </option>
+
+          @for (currency of currencies; track currency.id) {
+            <option [ngValue]="currency.id">
+              {{ currency.code }} — {{ currency.name }}
+              ({{ currency.symbol }})
+            </option>
+          }
+        </select>
+
+        @if (isLoadingCurrencies) {
+          <small>Cargando monedas...</small>
+        }
+
+        @if (
+          registrationForm.controls.primaryCurrencyId.touched &&
+          registrationForm.controls.primaryCurrencyId.invalid
+          ) {
+          <small class="error-message">
+            Selecciona una moneda principal.
+          </small>
+        }
+      </div>
+
+      @if (errorMessage) {
+        <p class="error-message" role="alert">{{ errorMessage }}</p>
+      }
+
+      @if (successMessage) {
+        <p role="status">{{ successMessage }}</p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="
+          isSubmitting ||
+          isLoadingCurrencies ||
+          currencies.length === 0 ||
+          !!successMessage
+        "
+      >
+        {{
+          isSubmitting
+            ? 'Creando cuenta...'
+            : 'Crear cuenta'
+        }}
+      </button>
+    </form>
+  </section>
+</div>

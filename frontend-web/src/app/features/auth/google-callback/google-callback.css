@@ -1,0 +1,32 @@
+
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.callback-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.callback-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 32px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 24px rgb(0 0 0 / 8%);
+}
+
+.error-message {
+  color: #b42318;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  cursor: pointer;
+}

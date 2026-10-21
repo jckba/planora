@@ -1,0 +1,23 @@
+<div class="callback-container">
+  <section class="callback-card">
+    <h1>Acceso con Google</h1>
+
+    @if (isLoading) {
+      <p role="status">{{ message }}</p>
+    }
+
+    @if (!isLoading && !errorMessage) {
+      <p role="status">{{ message }}</p>
+    }
+
+    @if (errorMessage) {
+      <p class="error-message" role="alert">
+        {{ errorMessage }}
+      </p>
+
+      <button type="button" (click)="goToLogin()">
+        Volver al inicio de sesion
+      </button>
+    }
+  </section>
+</div>
