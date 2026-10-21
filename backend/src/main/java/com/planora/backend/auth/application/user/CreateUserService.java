@@ -8,7 +8,7 @@ import com.planora.backend.common.exception.UsernameAlreadyInUseException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CreateUserService implements CreateUserUseCase{
+public class CreateUserService implements CreateUserUseCase {
 
     private final UserRepository userRepository;
     private final PasswordHasher passwordHasher;
@@ -18,26 +18,21 @@ public class CreateUserService implements CreateUserUseCase{
         this.passwordHasher = passwordHasher;
     }
 
-
     @Override
     public User execute(CreateUserCommand command) {
-        if (userRepository.existsByEmail(command.email())) {
-            throw new EmailAlreadyInUseException();
-        }
+        String email = command.email().trim();
 
-        if (userRepository.existsByUsername(command.username())) {
-            throw new UsernameAlreadyInUseException();
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailAlreadyInUseException();
         }
 
         String passwordHash = passwordHasher.hash(command.password());
 
-        User user = User.create(
-            command.username(),
+        User user = User.createPendingRegistration(
             command.email(),
             passwordHash,
             command.firstName(),
-            command.lastName(),
-            command.primaryCurrencyId()
+            command.lastName()
         );
 
         return userRepository.save(user);

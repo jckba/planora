@@ -3,6 +3,7 @@ package com.planora.backend.auth.domain;
 import lombok.Getter;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 
@@ -10,62 +11,55 @@ import org.jspecify.annotations.Nullable;
 public class User {
 
     private final UUID id;
-    private String username;
+    private @Nullable String username;
     private String email;
     private @Nullable String passwordHash;
     private String firstName;
     private String lastName;
-    private short primaryCurrencyId;
+    private @Nullable Short primaryCurrencyId;
+    private @Nullable Instant emailVerifiedAt;
     private @Nullable Instant passwordUpdatedAt;
     private final Instant createdAt;
     private Instant updatedAt;
     private int version;
 
-    private User(UUID id, String username, String email, @Nullable String passwordHash, String firstName, String lastName, short primaryCurrencyId, @Nullable Instant passwordUpdatedAt, Instant createdAt, Instant updatedAt, int version) {
-        this.id = id;
+    private User(UUID id, @Nullable String username, String email, @Nullable String passwordHash, String firstName, String lastName, @Nullable Short primaryCurrencyId, @Nullable Instant emailVerifiedAt, @Nullable Instant passwordUpdatedAt, Instant createdAt, Instant updatedAt, int version) {
+        this.id = Objects.requireNonNull(id);
         this.username = username;
-        this.email = email;
+        this.email = Objects.requireNonNull(email);
         this.passwordHash = passwordHash;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.firstName = Objects.requireNonNull(firstName);
+        this.lastName = Objects.requireNonNull(lastName);
         this.primaryCurrencyId = primaryCurrencyId;
+        this.emailVerifiedAt = emailVerifiedAt;
         this.passwordUpdatedAt = passwordUpdatedAt;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.createdAt = Objects.requireNonNull(createdAt);
+        this.updatedAt = Objects.requireNonNull(updatedAt);
         this.version = version;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerifiedAt != null;
+    }
+
+    public boolean isProfileComplete() {
+        return username != null && primaryCurrencyId != null;
     }
 
     public boolean hasLocalPassword() {
         return passwordHash != null;
     }
 
-    public static User create(String username, String email, String passwordHash, String firstName, String lastName, short primaryCurrencyId)
-    {
-        Instant now = Instant.now();
-        return new User(
-            UUID.randomUUID(),
-            username,
-            email,
-            passwordHash,
-            firstName,
-            lastName,
-            primaryCurrencyId,
-            now,
-            now,
-            now,
-            0
-        );
-    }
-
     public static User restore(
         UUID id,
-        String username,
+        @Nullable String username,
         String email,
-        String passwordHash,
+        @Nullable String passwordHash,
         String firstName,
         String lastName,
-        short primaryCurrencyId,
-        Instant passwordUpdatedAt,
+        @Nullable Short primaryCurrencyId,
+        @Nullable Instant emailVerifiedAt,
+        @Nullable Instant passwordUpdatedAt,
         Instant createdAt,
         Instant updatedAt,
         int version
@@ -78,10 +72,35 @@ public class User {
             firstName,
             lastName,
             primaryCurrencyId,
+            emailVerifiedAt,
             passwordUpdatedAt,
             createdAt,
             updatedAt,
             version
+        );
+    }
+
+    public static User createPendingRegistration(
+        String email,
+        String passwordHash,
+        String firstName,
+        String lastName
+    ) {
+        Instant now = Instant.now();
+
+        return new User(
+            UUID.randomUUID(),
+            null,
+            email,
+            passwordHash,
+            firstName,
+            lastName,
+            null,
+            null,
+            now,
+            now,
+            now,
+            0
         );
     }
 
@@ -90,7 +109,7 @@ public class User {
         String email,
         String firstName,
         String lastName,
-        short primaryCurrencyId
+        Short primaryCurrencyId
     ) {
         Instant now = Instant.now();
 
@@ -102,6 +121,7 @@ public class User {
             firstName,
             lastName,
             primaryCurrencyId,
+            null,
             null,
             now,
             now,

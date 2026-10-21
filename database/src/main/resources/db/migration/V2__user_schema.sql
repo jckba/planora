@@ -2,7 +2,7 @@ CREATE TABLE app_user
 (
     id                  UUID PRIMARY KEY,
 
-    username            CITEXT       NOT NULL,
+    username            CITEXT,
 
     email               CITEXT       NOT NULL,
 
@@ -12,7 +12,9 @@ CREATE TABLE app_user
 
     last_name           VARCHAR(100) NOT NULL,
 
-    primary_currency_id SMALLINT     NOT NULL,
+    primary_currency_id SMALLINT,
+
+    email_verified_at   TIMESTAMPTZ,
 
     password_updated_at TIMESTAMPTZ,
 

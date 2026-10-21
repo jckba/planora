@@ -90,6 +90,7 @@ public class JooqUserRepository implements UserRepository {
             record.getFirstName(),
             record.getLastName(),
             record.getPrimaryCurrencyId(),
+            record.getEmailVerifiedAt().toInstant(),
             record.getPasswordUpdatedAt() == null
             ? null : record.getPasswordUpdatedAt().toInstant(),
             record.getCreatedAt().toInstant(),

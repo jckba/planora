@@ -25,9 +25,9 @@ public class JooqExternalIdentityRepository implements ExternalIdentityRepositor
     public Optional<UUID> findUserIdByGoogleSubject(String googleSubject) {
         return dsl.select(EXTERNAL_IDENTITY.USER_ID)
             .from(EXTERNAL_IDENTITY)
-            .where(EXTERNAL_IDENTITY.PROVIDER_SUBJECT.eq("GOOGLE"))
-                .and(EXTERNAL_IDENTITY.PROVIDER_SUBJECT.eq(googleSubject))
-                .fetchOptional(EXTERNAL_IDENTITY.USER_ID);
+            .where(EXTERNAL_IDENTITY.PROVIDER.eq("GOOGLE"))
+            .and(EXTERNAL_IDENTITY.PROVIDER_SUBJECT.eq(googleSubject))
+            .fetchOptional(EXTERNAL_IDENTITY.USER_ID);
     }
 
     @Override

@@ -8,10 +8,6 @@ import jakarta.validation.constraints.Size;
 public record UserRegistrationRequest(
 
     @NotBlank
-    @Size(min = 3, max = 50)
-    String username,
-
-    @NotBlank
     @Email
     @Size(max = 254)
     String email,
@@ -26,9 +22,6 @@ public record UserRegistrationRequest(
 
     @NotBlank
     @Size(max = 100)
-    String lastName,
-
-    @NotNull
-    Short primaryCurrencyId
+    String lastName
 ) {
 }
