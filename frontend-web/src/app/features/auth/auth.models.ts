@@ -9,6 +9,15 @@ export interface LoginResponse {
   expiresIn: number;
 }
 
+export interface UserRegistrationRequest {
+  username: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  primaryCurrencyId: number;
+}
+
 export type GoogleSessionStatus =
   | 'AUTHENTICATED'
   | 'REGISTRATION_REQUIRED'

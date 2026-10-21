@@ -2,7 +2,7 @@ package com.planora.backend.auth.api;
 
 import com.planora.backend.auth.api.dto.LoginRequest;
 import com.planora.backend.auth.api.dto.LoginResponse;
-import com.planora.backend.auth.api.dto.RegisterUserRequest;
+import com.planora.backend.auth.api.dto.UserRegistrationRequest;
 import com.planora.backend.auth.application.user.CreateUserCommand;
 import com.planora.backend.auth.application.user.CreateUserUseCase;
 
@@ -16,12 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -50,7 +47,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<Void> register(
-        @Valid @RequestBody RegisterUserRequest request
+        @Valid @RequestBody UserRegistrationRequest request
     ) {
         CreateUserCommand command = new CreateUserCommand(
             request.username(),
@@ -65,7 +62,6 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
