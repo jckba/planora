@@ -35,8 +35,8 @@ public class GoogleLoginSuccessHandler implements AuthenticationSuccessHandler {
             oidcUser.getEmail() == null ||
             oidcUser.getEmail().isBlank() ||
             !Boolean.TRUE.equals(oidcUser.getEmailVerified())) {
-            request.getSession().invalidate();
 
+            request.getSession().invalidate();
             response.sendRedirect(
                 properties.frontendOrigin()
                     + "/auth/google/callback?error=email_not_verified"

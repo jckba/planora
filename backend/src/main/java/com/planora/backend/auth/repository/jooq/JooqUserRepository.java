@@ -32,6 +32,8 @@ public class JooqUserRepository implements UserRepository {
             .set(APP_USER.FIRST_NAME, user.getFirstName())
             .set(APP_USER.LAST_NAME, user.getLastName())
             .set(APP_USER.PRIMARY_CURRENCY_ID, user.getPrimaryCurrencyId())
+            .set(APP_USER.EMAIL_VERIFIED_AT, user.getEmailVerifiedAt() == null
+            ? null : OffsetDateTime.ofInstant(user.getEmailVerifiedAt(), ZoneOffset.UTC))
             .set(APP_USER.PASSWORD_UPDATED_AT, user.getPasswordUpdatedAt() == null
             ? null : OffsetDateTime.ofInstant(user.getPasswordUpdatedAt(), ZoneOffset.UTC))
             .set(APP_USER.CREATED_AT, OffsetDateTime.ofInstant(user.getCreatedAt(), ZoneOffset.UTC))
@@ -42,9 +44,23 @@ public class JooqUserRepository implements UserRepository {
     }
 
     @Override
+    public User update(User user) {
+        return null;
+    }
+
+    @Override
     public Optional<User> findById(UUID id) {
         return dsl.selectFrom(APP_USER)
             .where(APP_USER.ID.eq(id))
+            .fetchOptional()
+            .map(this::mapToUser);
+    }
+
+    @Override
+    public Optional<User> findByIdForUpdate(UUID id) {
+        return dsl.selectFrom(APP_USER)
+            .where(APP_USER.ID.eq(id))
+            .forUpdate()
             .fetchOptional()
             .map(this::mapToUser);
     }
@@ -90,7 +106,8 @@ public class JooqUserRepository implements UserRepository {
             record.getFirstName(),
             record.getLastName(),
             record.getPrimaryCurrencyId(),
-            record.getEmailVerifiedAt().toInstant(),
+            record.getEmailVerifiedAt() == null
+            ? null : record.getEmailVerifiedAt().toInstant(),
             record.getPasswordUpdatedAt() == null
             ? null : record.getPasswordUpdatedAt().toInstant(),
             record.getCreatedAt().toInstant(),

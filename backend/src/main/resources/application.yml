@@ -13,6 +13,9 @@ spring:
       - planora
     default-schema: planora
 
+  jooq:
+    sql-dialect: POSTGRES
+
   security:
     oauth2:
       client:
@@ -35,6 +38,12 @@ planora:
 
     google:
       frontend-origin: ${PLANORA_FRONTEND_ORIGIN:http://localhost:4200}
+
+    email-verification:
+      hmac-key: ${PLANORA_EMAIL_VERIFICATION_HMAC_KEY}
+      code-validity: PT15M
+      max-attempts: 3
+      resend-delay: PT1M
 
 server:
   servlet:

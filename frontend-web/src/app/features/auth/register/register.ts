@@ -28,6 +28,10 @@ export class RegisterComponent {
       nonNullable: true,
       validators: [Validators.required, Validators.email],
     }),
+    password: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
   });
 
   isSubmitting = false;

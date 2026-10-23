@@ -5,6 +5,7 @@ import lombok.Getter;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
+
 import org.jspecify.annotations.Nullable;
 
 @Getter
@@ -78,6 +79,16 @@ public class User {
             updatedAt,
             version
         );
+    }
+
+    public void verifyEmail(Instant verifiedAt) {
+        Objects.requireNonNull(verifiedAt, "verifiedAt must not be null");
+
+        if (isEmailVerified()) {
+            throw new IllegalStateException("Email is already verified");
+        }
+        this.emailVerifiedAt = verifiedAt;
+        this.updatedAt = verifiedAt;
     }
 
     public static User createPendingRegistration(

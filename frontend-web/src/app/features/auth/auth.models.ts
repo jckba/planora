@@ -10,12 +10,10 @@ export interface LoginResponse {
 }
 
 export interface UserRegistrationRequest {
-  username: string;
-  email: string;
-  password: string;
   firstName: string;
   lastName: string;
-  primaryCurrencyId: number;
+  email: string;
+  password: string;
 }
 
 export type GoogleSessionStatus =

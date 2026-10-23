@@ -50,10 +50,10 @@ public class AuthController {
         @Valid @RequestBody UserRegistrationRequest request
     ) {
         CreateUserCommand command = new CreateUserCommand(
-            request.email(),
-            request.password(),
             request.firstName(),
-            request.lastName()
+            request.lastName(),
+            request.email(),
+            request.password()
         );
 
         createUserUseCase.execute(command);

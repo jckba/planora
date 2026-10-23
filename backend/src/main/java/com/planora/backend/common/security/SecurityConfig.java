@@ -64,6 +64,11 @@ public class SecurityConfig {
                     "/api/auth/google/session",
                     "/api/auth/google/complete"
                 ).permitAll()
+                .requestMatchers(
+                    HttpMethod.GET,
+                    "/api/currencies",
+                    "/api/currencies/**"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 ->

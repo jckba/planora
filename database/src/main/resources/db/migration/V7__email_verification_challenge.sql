@@ -1,20 +1,22 @@
 CREATE TABLE email_verification_challenge
 (
-    id           UUID PRIMARY KEY,
+    id             UUID PRIMARY KEY,
 
-    user_id      UUID         NOT NULL,
+    user_id        UUID         NOT NULL,
 
-    code_hash    VARCHAR(255) NOT NULL,
+    code_hash      VARCHAR(255) NOT NULL,
 
-    expires_at   TIMESTAMPTZ  NOT NULL,
+    expires_at     TIMESTAMPTZ  NOT NULL,
 
-    attempts     INTEGER      NOT NULL DEFAULT 0,
+    attempts       INTEGER      NOT NULL DEFAULT 0,
 
-    max_attempts INTEGER      NOT NULL,
+    max_attempts   INTEGER      NOT NULL,
 
-    consumed_at  TIMESTAMPTZ,
+    consumed_at    TIMESTAMPTZ,
 
-    created_at   TIMESTAMPTZ  NOT NULL,
+    invalidated_at TIMESTAMPTZ,
+
+    created_at     TIMESTAMPTZ  NOT NULL,
 
     CONSTRAINT fk_email_verification_user
         FOREIGN KEY (user_id)
@@ -33,7 +35,13 @@ CREATE TABLE email_verification_challenge
         CHECK (expires_at > created_at),
 
     CONSTRAINT chk_email_verification_consumption
-        CHECK (consumed_at IS NULL OR consumed_at >= created_at)
+        CHECK (consumed_at IS NULL OR consumed_at >= created_at),
+
+    CONSTRAINT chk_email_verification_invalidation
+        CHECK (invalidated_at IS NULL OR invalidated_at >= created_at),
+
+    CONSTRAINT chk_email_verification_terminal_state
+        CHECK (consumed_at IS NULL OR invalidated_at IS NULL)
 );
 
 CREATE INDEX idx_email_verification_user_created
