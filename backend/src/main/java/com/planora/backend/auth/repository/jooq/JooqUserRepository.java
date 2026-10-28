@@ -3,9 +3,12 @@ package com.planora.backend.auth.repository.jooq;
 import com.planora.backend.auth.domain.User;
 import com.planora.backend.auth.repository.UserRepository;
 import com.planora.persistence.jooq.tables.records.AppUserRecord;
+import jakarta.annotation.Nullable;
 import org.jooq.DSLContext;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
@@ -45,7 +48,32 @@ public class JooqUserRepository implements UserRepository {
 
     @Override
     public User update(User user) {
-        return null;
+        int expectedVersion = user.getVersion();
+        int nextVersion = Math.incrementExact(expectedVersion);
+
+        int updatedRows = dsl.update(APP_USER)
+            .set(APP_USER.USERNAME, user.getUsername())
+            .set(APP_USER.EMAIL, user.getEmail())
+            .set(APP_USER.PASSWORD_HASH, user.getPasswordHash())
+            .set(APP_USER.FIRST_NAME, user.getFirstName())
+            .set(APP_USER.LAST_NAME, user.getLastName())
+            .set(APP_USER.PRIMARY_CURRENCY_ID, user.getPrimaryCurrencyId())
+            .set(APP_USER.EMAIL_VERIFIED_AT, toNullableOffsetDateTime(user.getEmailVerifiedAt()))
+            .set(APP_USER.PASSWORD_UPDATED_AT, toNullableOffsetDateTime(user.getPasswordUpdatedAt()))
+            .set(APP_USER.UPDATED_AT, toNullableOffsetDateTime(user.getUpdatedAt()))
+            .set(APP_USER.VERSION, user.getVersion())
+            .where(APP_USER.ID.eq(user.getId()))
+            .and(APP_USER.VERSION.eq(expectedVersion))
+            .execute();
+
+        if (updatedRows != 1) {
+            throw new OptimisticLockingFailureException(
+                "User was modified or deleted concurrently"
+            );
+        }
+        user.markVersionPersisted(expectedVersion, nextVersion);
+
+        return user;
     }
 
     @Override
@@ -115,4 +143,14 @@ public class JooqUserRepository implements UserRepository {
             record.getVersion()
         );
     }
+    private static OffsetDateTime toOffsetDateTime(Instant instant) {
+        return OffsetDateTime.ofInstant(instant, ZoneOffset.UTC);
+    }
+
+    private static OffsetDateTime toNullableOffsetDateTime(
+        @Nullable Instant instant) {
+
+        return instant == null ? null : toOffsetDateTime(instant);
+    }
+
 }

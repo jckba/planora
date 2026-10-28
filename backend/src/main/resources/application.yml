@@ -28,6 +28,18 @@ spring:
               - profile
               - email
 
+  mail:
+    host: ${PLANORA_SMTP_HOST}
+    port: ${PLANORA_SMTP_PORT:587}
+    username: ${PLANORA_SMTP_USERNAME}
+    password: ${PLANORA_SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 planora:
   security:
     jwt:
@@ -44,6 +56,9 @@ planora:
       code-validity: PT15M
       max-attempts: 3
       resend-delay: PT1M
+
+  mail:
+    from: ${PLANORA_MAIL_FROM}
 
 server:
   servlet:

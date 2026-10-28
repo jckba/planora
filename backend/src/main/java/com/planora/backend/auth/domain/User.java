@@ -91,6 +91,16 @@ public class User {
         this.updatedAt = verifiedAt;
     }
 
+    public void markVersionPersisted( int expectedVersion, int persistedVersion) {
+        if (this.version != expectedVersion) {
+            throw new IllegalStateException("User version changed unexpectedly in memory");
+        }
+        if (persistedVersion != Math.incrementExact(expectedVersion)) {
+            throw new IllegalArgumentException("Persisted version must be exactly one greater than expected version");
+        }
+        this.version = persistedVersion;
+    }
+
     public static User createPendingRegistration(
         String email,
         String passwordHash,

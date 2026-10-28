@@ -114,7 +114,7 @@ dependencies {
     implementation(libs.jjwt.api)
     implementation(libs.spring.security.oauth2.resource.server)
     implementation(libs.spring.security.oauth2.client)
-
+    implementation("org.springframework.boot:spring-boot-starter-mail")
 
     jooqCodegen(libs.postgresql)
 

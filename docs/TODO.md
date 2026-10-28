@@ -65,3 +65,21 @@ cada test web pueda importar solo la configuración que necesita.
 
 Para Planora, la siguiente mejora es incorporar Testcontainers con PostgreSQL 17 y ejecutar las migraciones Flyway en el
 contenedor de prueba.
+
+
+Pruebas necesarias para cerrar este componente
+   Antes de pasar a JooqEmailVerificationChallengeRepository, verifica estos casos.
+   Pruebas de la entidad User
+1. verifyEmail() establece emailVerifiedAt y actualiza updatedAt.
+2. Intentar verificar un usuario ya verificado lanza IllegalStateException.
+3. markVersionPersisted() incrementa la versión exactamente en uno.
+4. markVersionPersisted() rechaza una versión inesperada.
+5. 
+Pruebas de integración de JooqUserRepository
+   Usando PostgreSQL de pruebas —no una base en memoria que pueda diferir en el comportamiento de CITEXT, restricciones o tipos—, comprueba:
+1. Actualizar un usuario con la versión actual funciona y persiste sus cambios.
+2. La versión aumenta exactamente en uno en PostgreSQL y en el objeto.
+3. Actualizar usando una versión obsoleta lanza OptimisticLockingFailureException.
+4. Si la actualización falla, la versión del objeto en memoria no cambia.
+5. Los valores nullable, como emailVerifiedAt, se guardan y recuperan correctamente.
+   Puedes seguir el patrón de pruebas de persistencia que ya utilizas para JooqUserRepository. No necesitamos crear una nueva infraestructura de testing si ya tienes una configurada.

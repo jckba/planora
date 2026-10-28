@@ -48,6 +48,24 @@ public class IssueEmailVerificationService {
         this.codeValidity = codeValidity;
         this.resendDelay = resendDelay;
         this.maxAttempts = maxAttempts;
+
+        if (codeValidity.isZero() || codeValidity.isNegative()) {
+            throw new IllegalArgumentException(
+                "Code validity must be positive"
+            );
+        }
+
+        if (resendDelay.isNegative()) {
+            throw new IllegalArgumentException(
+                "Resend delay cannot be negative"
+            );
+        }
+
+        if (maxAttempts <= 0) {
+            throw new IllegalArgumentException(
+                "Maximum attempts must be positive"
+            );
+        }
     }
 
     @Transactional
