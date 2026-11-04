@@ -46,7 +46,6 @@ public class GoogleAuthController {
         this.clock = clock;
     }
 
-
     @PostMapping("/session")
     public GoogleSessionResponse session(HttpServletRequest request) {
         verifyOrigin(request);
@@ -93,31 +92,6 @@ public class GoogleAuthController {
             pending.lastName(),
             login
         );
-    }
-
-    @PostMapping("/complete")
-    public LoginResponse complete(
-        @Valid @RequestBody GoogleRegistrationRequest requestBody,
-        HttpServletRequest request
-    ) {
-        verifyOrigin(request);
-
-        PendingGoogleIdentity pending = requirePending(request);
-
-        GoogleRegistrationCommand command = new GoogleRegistrationCommand(
-            requestBody.username(),
-            requestBody.firstName(),
-            requestBody.lastName(),
-            requestBody.primaryCurrencyId()
-        );
-
-        UUID userId = accountService.register(pending, command);
-
-        LoginResponse response = issueToken(userId);
-
-        clearPending(request);
-
-        return response;
     }
 
     @PostMapping("/link")

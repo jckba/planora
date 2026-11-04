@@ -1,6 +1,6 @@
 package com.planora.backend.auth.application.user.register;
 
-public record CompleteLocalUserCommand(
+public record CompleteProfileCommand(
     String username,
     short primaryCurrencyId
 ) {

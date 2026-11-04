@@ -11,14 +11,14 @@ import java.time.Clock;
 import java.util.UUID;
 
 @Service
-public class CompleteLocalUserUseCase {
+public class CompleteProfileUseCase {
 
     private final UserRepository userRepository;
     private final CurrencyRepository currencyRepository;
     private final CurrentUser currentUser;
     private final Clock clock;
 
-    public CompleteLocalUserUseCase(UserRepository userRepository, CurrencyRepository currencyRepository, CurrentUser currentUser, Clock clock) {
+    public CompleteProfileUseCase(UserRepository userRepository, CurrencyRepository currencyRepository, CurrentUser currentUser, Clock clock) {
         this.userRepository = userRepository;
         this.currencyRepository = currencyRepository;
         this.currentUser = currentUser;
@@ -26,7 +26,7 @@ public class CompleteLocalUserUseCase {
     }
 
     @Transactional
-    public void execute(CompleteLocalUserCommand command) {
+    public void execute(CompleteProfileCommand command) {
         UUID userId = currentUser.userId();
 
         User user = userRepository.findByIdForUpdate(userId)

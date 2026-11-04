@@ -2,17 +2,15 @@ package com.planora.backend.auth.api;
 
 import com.planora.backend.auth.api.dto.login.LoginRequest;
 import com.planora.backend.auth.api.dto.login.LoginResponse;
-import com.planora.backend.auth.api.dto.register.CompleteLocalUserRequest;
+import com.planora.backend.auth.api.dto.register.CompleteProfileRequest;
 import com.planora.backend.auth.api.dto.register.UserRegistrationRequest;
 import com.planora.backend.auth.application.user.create.CreateUserCommand;
 
-import com.planora.backend.auth.application.user.register.CompleteLocalUserCommand;
-import com.planora.backend.auth.application.user.register.CompleteLocalUserUseCase;
+import com.planora.backend.auth.application.user.register.CompleteProfileCommand;
+import com.planora.backend.auth.application.user.register.CompleteProfileUseCase;
 import com.planora.backend.auth.application.user.register.RegisterLocalUserUseCase;
 import com.planora.backend.auth.security.PlanoraUserPrincipal;
 import com.planora.backend.common.security.CurrentUser;
-import com.planora.backend.common.security.jwt.JwtProperties;
-import com.planora.backend.common.security.jwt.JwtTokenService;
 import com.planora.backend.common.security.jwt.access.AccessTokenIssuer;
 import com.planora.backend.common.security.jwt.access.IssuedAccessToken;
 import com.planora.backend.common.security.jwt.onboarding.IssuedOnBoardingToken;
@@ -32,15 +30,15 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final RegisterLocalUserUseCase registerLocalUserUseCase;
-    private final CompleteLocalUserUseCase completeLocalUserUseCase;
+    private final CompleteProfileUseCase completeProfileUseCase;
     private final CurrentUser currentUser;
     private final AccessTokenIssuer accessTokenIssuer;
     private final OnBoardingTokenIssuer onBoardingTokenIssuer;
 
-    public AuthController(AuthenticationManager authenticationManager, RegisterLocalUserUseCase registerLocalUserUseCase, CompleteLocalUserUseCase completeLocalUserUseCase, CurrentUser currentUser, AccessTokenIssuer accessTokenIssuer, OnBoardingTokenIssuer onBoardingTokenIssuer) {
+    public AuthController(AuthenticationManager authenticationManager, RegisterLocalUserUseCase registerLocalUserUseCase, CompleteProfileUseCase completeProfileUseCase, CurrentUser currentUser, AccessTokenIssuer accessTokenIssuer, OnBoardingTokenIssuer onBoardingTokenIssuer) {
         this.authenticationManager = authenticationManager;
         this.registerLocalUserUseCase = registerLocalUserUseCase;
-        this.completeLocalUserUseCase = completeLocalUserUseCase;
+        this.completeProfileUseCase = completeProfileUseCase;
         this.currentUser = currentUser;
         this.accessTokenIssuer = accessTokenIssuer;
         this.onBoardingTokenIssuer = onBoardingTokenIssuer;
@@ -71,10 +69,10 @@ public class AuthController {
 
     @PostMapping("/complete-registration")
     public ResponseEntity<LoginResponse> completeRegistration(
-        @Valid @RequestBody CompleteLocalUserRequest request
+        @Valid @RequestBody CompleteProfileRequest request
     ) {
-        completeLocalUserUseCase.execute(
-            new CompleteLocalUserCommand(
+        completeProfileUseCase.execute(
+            new CompleteProfileCommand(
                 request.username(),
                 request.primaryCurrencyId()
             )
