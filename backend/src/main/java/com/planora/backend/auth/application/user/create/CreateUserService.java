@@ -1,10 +1,9 @@
-package com.planora.backend.auth.application.user;
+package com.planora.backend.auth.application.user.create;
 
 import com.planora.backend.auth.application.security.PasswordHasher;
 import com.planora.backend.auth.domain.User;
 import com.planora.backend.auth.repository.UserRepository;
-import com.planora.backend.common.exception.EmailAlreadyInUseException;
-import com.planora.backend.common.exception.UsernameAlreadyInUseException;
+import com.planora.backend.common.exception.email.EmailAlreadyInUseException;
 import org.springframework.stereotype.Service;
 
 @Service

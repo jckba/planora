@@ -1,4 +1,4 @@
-package com.planora.backend.auth.api.dto;
+package com.planora.backend.auth.api.dto.google;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

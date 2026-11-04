@@ -1,7 +1,7 @@
-package com.planora.backend.common.security.jwt;
+package com.planora.backend.common.security.jwt.access;
 
 public record IssuedAccessToken(
-    String accessToken,
+    String token,
     String tokenType,
     long expiresIn
 ) {

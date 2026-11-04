@@ -4,7 +4,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  accessToken: string;
+  token: string;
   tokenType: string;
   expiresIn: number;
 }
@@ -15,6 +15,19 @@ export interface UserRegistrationRequest {
   email: string;
   password: string;
 }
+
+export interface EmailVerificationConfirmationResponse {
+  message: string;
+  token: string;
+  tokenType: string;
+  expiresIn: number;
+}
+
+export interface CompleteRegistrationRequest {
+  username: string;
+  primaryCurrencyId: number;
+}
+
 
 export type GoogleSessionStatus =
   | 'AUTHENTICATED'

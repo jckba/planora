@@ -15,13 +15,17 @@ public class PlanoraUserPrincipal implements UserDetails {
     private final UUID userId;
     private final String email;
     private final String password;
+    private final boolean emailVerified;
+    private final boolean profileComplete;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public PlanoraUserPrincipal(UUID userId, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public PlanoraUserPrincipal(UUID userId, String email, String password, boolean emailVerified, boolean profileComplete, Collection<? extends GrantedAuthority> authorities) {
         this.userId = userId;
         this.email = email;
         this.password = password;
-        this.authorities = authorities;
+        this.emailVerified = emailVerified;
+        this.profileComplete = profileComplete;
+        this.authorities = List.copyOf(authorities);
     }
 
     @Override
@@ -56,6 +60,6 @@ public class PlanoraUserPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return emailVerified;
     }
 }

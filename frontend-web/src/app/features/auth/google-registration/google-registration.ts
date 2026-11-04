@@ -1,7 +1,7 @@
 import {Component, inject, OnInit} from '@angular/core';
 import { Location } from '@angular/common';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {AuthService} from '../auth.services';
+import {AuthService} from '../../../core/services/auth.services';
 import {Currency} from '../currency.model';
 import {HttpErrorResponse} from '@angular/common/http';
 

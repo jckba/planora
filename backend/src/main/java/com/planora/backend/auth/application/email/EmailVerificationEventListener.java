@@ -1,4 +1,4 @@
-package com.planora.backend.auth.application.user;
+package com.planora.backend.auth.application.email;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;

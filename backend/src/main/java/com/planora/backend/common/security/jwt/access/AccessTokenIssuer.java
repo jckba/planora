@@ -1,5 +1,7 @@
-package com.planora.backend.common.security.jwt;
+package com.planora.backend.common.security.jwt.access;
 
+import com.planora.backend.common.security.jwt.JwtProperties;
+import com.planora.backend.common.security.jwt.JwtTokenService;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -18,7 +20,7 @@ public class AccessTokenIssuer {
 
         return new IssuedAccessToken(
             jwtTokenService.issueAccessToken(userId),
-            ")Bearer",
+            "Bearer",
             jwtProperties.accessTokenTtl().toSeconds()
         );
     }

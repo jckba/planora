@@ -1,7 +1,7 @@
-package com.planora.backend.auth.api.dto;
+package com.planora.backend.auth.api.dto.login;
 
 public record LoginResponse(
-    String accessToken,
+    String token,
     String tokenType,
     long expiresIn
 ) {

@@ -47,6 +47,8 @@ public class PlanoraUserDetailsService implements UserDetailsService {
             user.getId(),
             user.getEmail(),
             passwordHash,
+            user.isEmailVerified(),
+            user.isProfileComplete(),
             List.of(new SimpleGrantedAuthority("USER"))
         );
     }

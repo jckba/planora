@@ -8,6 +8,7 @@ import java.time.Duration;
 public record JwtProperties(
     String issuer,
     Duration accessTokenTtl,
+    Duration onboardingTokenTtl,
     String privateKeyLocation,
     String publicKeyLocation
 ) {
@@ -19,6 +20,12 @@ public record JwtProperties(
             || accessTokenTtl.isZero()
             || accessTokenTtl.isNegative()) {
             throw new IllegalArgumentException("JWT access token TTL is required and must be positive");
+        }
+
+        if (onboardingTokenTtl == null
+            || onboardingTokenTtl.isZero()
+            || onboardingTokenTtl.isNegative()) {
+            throw new IllegalArgumentException("JWT onboarding token TTL is required and must be positive");
         }
         if (privateKeyLocation == null || privateKeyLocation.isBlank()
             || publicKeyLocation == null || publicKeyLocation.isBlank()) {

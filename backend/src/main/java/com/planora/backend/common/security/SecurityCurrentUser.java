@@ -1,6 +1,7 @@
 package com.planora.backend.common.security;
 
 import com.planora.backend.auth.security.PlanoraUserPrincipal;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,8 +19,9 @@ public class SecurityCurrentUser implements CurrentUser {
             SecurityContextHolder.getContext()
                 .getAuthentication();
 
-        if (authentication == null ||
-            !authentication.isAuthenticated()) {
+        if (authentication == null
+            || !authentication.isAuthenticated()
+            || authentication instanceof AnonymousAuthenticationToken) {
             throw new AuthenticationCredentialsNotFoundException(
                 "No authentication user found"
             );

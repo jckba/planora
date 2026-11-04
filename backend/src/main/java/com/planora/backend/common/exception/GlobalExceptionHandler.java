@@ -2,6 +2,7 @@ package com.planora.backend.common.exception;
 
 import com.planora.backend.common.api.ErrorResponse;
 import com.planora.backend.common.api.ValidationError;
+import com.planora.backend.common.exception.email.EmailAlreadyInUseException;
 import com.planora.backend.common.exception.oauth.GoogleIdentityConflictException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;

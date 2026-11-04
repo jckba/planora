@@ -1,4 +1,4 @@
-package com.planora.backend.auth.application.user;
+package com.planora.backend.auth.application.user.create;
 
 import com.planora.backend.auth.domain.User;
 

@@ -125,6 +125,58 @@ public class User {
         );
     }
 
+    public void completeProfile(
+        String username,
+        short primaryCurrencyId,
+        Instant now
+    ) {
+        Objects.requireNonNull(username, "username cannot be null");
+        Objects.requireNonNull(now, "now cannot be null");
+
+        if (!isEmailVerified()) {
+            throw new IllegalStateException("Email must be verified before completing profile");
+        }
+
+        if (isProfileComplete()) {
+            throw new IllegalStateException("Profile is already complete");
+        }
+
+        if (username.isBlank()) {
+            throw new IllegalArgumentException("username cannot be blank");
+        }
+
+        if (primaryCurrencyId<=0) {
+            throw new IllegalArgumentException("primaryCurrencyId cannot be less than or equal to zero");
+        }
+
+        this.username = username;
+        this.primaryCurrencyId = primaryCurrencyId;
+        this.updatedAt = now;
+    }
+
+    public static User createPendingExternal(
+        String email,
+        String firstName,
+        String lastName,
+        Instant emailVerifiedAt
+    ) {
+        Instant now = Instant.now();
+        return new User(
+            UUID.randomUUID(),
+            null,
+            email,
+            null,
+            firstName,
+            lastName,
+            null,
+            Objects.requireNonNull(emailVerifiedAt),
+            null,
+            now,
+            now,
+            0
+        );
+    }
+
     public static User createExternal(
         String username,
         String email,

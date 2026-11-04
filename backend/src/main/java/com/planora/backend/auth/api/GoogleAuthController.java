@@ -1,15 +1,17 @@
 package com.planora.backend.auth.api;
 
-import com.planora.backend.auth.api.dto.GoogleRegistrationRequest;
-import com.planora.backend.auth.api.dto.GoogleSessionResponse;
-import com.planora.backend.auth.api.dto.LoginResponse;
+import com.planora.backend.auth.api.dto.google.GoogleRegistrationRequest;
+import com.planora.backend.auth.api.dto.google.GoogleSessionResponse;
+import com.planora.backend.auth.api.dto.login.LoginResponse;
 import com.planora.backend.auth.application.oauth.GoogleAccountService;
 import com.planora.backend.auth.application.oauth.GoogleRegistrationCommand;
 import com.planora.backend.auth.security.oauth2.GoogleAuthProperties;
 import com.planora.backend.auth.security.oauth2.PendingGoogleIdentity;
 import com.planora.backend.common.security.CurrentUser;
-import com.planora.backend.common.security.jwt.AccessTokenIssuer;
-import com.planora.backend.common.security.jwt.IssuedAccessToken;
+import com.planora.backend.common.security.jwt.access.AccessTokenIssuer;
+import com.planora.backend.common.security.jwt.access.IssuedAccessToken;
+import com.planora.backend.common.security.jwt.onboarding.IssuedOnBoardingToken;
+import com.planora.backend.common.security.jwt.onboarding.OnBoardingTokenIssuer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -29,18 +31,21 @@ import java.util.UUID;
 public class GoogleAuthController {
 
     private final GoogleAccountService accountService;
-    private final AccessTokenIssuer tokenIssuer;
+    private final AccessTokenIssuer accessTokenIssuer;
+    private final OnBoardingTokenIssuer onBoardingTokenIssuer;
     private final GoogleAuthProperties properties;
     private final CurrentUser currentUser;
     private final Clock clock;
 
-    public GoogleAuthController(GoogleAccountService accountService, AccessTokenIssuer tokenIssuer, GoogleAuthProperties properties, CurrentUser currentUser, Clock clock) {
+    public GoogleAuthController(GoogleAccountService accountService, AccessTokenIssuer accessTokenIssuer, OnBoardingTokenIssuer onBoardingTokenIssuer, GoogleAuthProperties properties, CurrentUser currentUser, Clock clock) {
         this.accountService = accountService;
-        this.tokenIssuer = tokenIssuer;
+        this.accessTokenIssuer = accessTokenIssuer;
+        this.onBoardingTokenIssuer = onBoardingTokenIssuer;
         this.properties = properties;
         this.currentUser = currentUser;
         this.clock = clock;
     }
+
 
     @PostMapping("/session")
     public GoogleSessionResponse session(HttpServletRequest request) {
@@ -66,13 +71,27 @@ public class GoogleAuthController {
 
         boolean existingEmail = accountService.emailBelongsToExistingUser(pending.email());
 
+        if (existingEmail) {
+            return new GoogleSessionResponse("LINK_REQUIRED",
+                pending.email(),
+                pending.firstName(),
+                pending.lastName(),
+                null
+            );
+        }
+
+        UUID userId = accountService.register(pending);
+
+        LoginResponse login = issueToken(userId);
+
+        clearPending(request);
+
         return new GoogleSessionResponse(
-            existingEmail ? "LINK_REQUIRED"
-                : "REGISTRATION_REQUIRED",
+            "REGISTRATION_REQUIRED",
             pending.email(),
             pending.firstName(),
             pending.lastName(),
-            null
+            login
         );
     }
 
@@ -122,11 +141,20 @@ public class GoogleAuthController {
     }
 
     private LoginResponse issueToken(UUID userId) {
+        if (accountService.isProfileComplete(userId)) {
+            IssuedAccessToken token = accessTokenIssuer.issue(userId);
 
-        IssuedAccessToken token = tokenIssuer.issue(userId);
+            return new LoginResponse(
+                token.token(),
+                token.tokenType(),
+                token.expiresIn()
+            );
+        }
+
+        IssuedOnBoardingToken token = onBoardingTokenIssuer.issue(userId);
 
         return new LoginResponse(
-            token.accessToken(),
+            token.token(),
             token.tokenType(),
             token.expiresIn()
         );

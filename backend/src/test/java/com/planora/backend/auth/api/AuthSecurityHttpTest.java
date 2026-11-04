@@ -2,7 +2,7 @@
 package com.planora.backend.auth.api;
 
 import com.jayway.jsonpath.JsonPath;
-import com.planora.backend.auth.application.user.CreateUserUseCase;
+import com.planora.backend.auth.application.user.create.CreateUserUseCase;
 import com.planora.backend.auth.security.PlanoraUserPrincipal;
 import com.planora.backend.common.security.SecurityConfig;
 import com.planora.backend.common.security.SecurityCurrentUser;
@@ -249,6 +249,8 @@ class AuthSecurityHttpTest {
                 userId,
                 "jckba@example.com",
                 passwordEncoder.encode("correct-password"),
+                true,
+                true,
                 List.of(
                     new SimpleGrantedAuthority("USER")
                 )

@@ -1,7 +1,7 @@
 package com.planora.backend.common.security;
 
 import com.planora.backend.auth.api.AuthController;
-import com.planora.backend.auth.application.user.CreateUserUseCase;
+import com.planora.backend.auth.application.user.create.CreateUserUseCase;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;

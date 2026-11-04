@@ -1,4 +1,4 @@
-package com.planora.backend.auth.application.user;
+package com.planora.backend.auth.application.email;
 
 import com.planora.backend.auth.application.security.VerificationCodeGenerator;
 import com.planora.backend.auth.application.security.VerificationCodeHasher;
@@ -6,6 +6,8 @@ import com.planora.backend.auth.domain.EmailVerificationChallenge;
 import com.planora.backend.auth.domain.User;
 import com.planora.backend.auth.repository.EmailVerificationChallengeRepository;
 import com.planora.backend.auth.repository.UserRepository;
+import com.planora.backend.common.exception.email.EmailAlreadyInUseException;
+import com.planora.backend.common.exception.email.EmailVerificationResendTooSoonException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -74,13 +76,13 @@ public class IssueEmailVerificationService {
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         if (user.isEmailVerified()) {
-            throw new IllegalStateException("User email is already verified");
+            throw new EmailAlreadyInUseException();
         }
 
         Instant now = clock.instant();
 
         if (challengeRepository.existsCreatedSince(userId, now.minus(resendDelay))) {
-            throw new IllegalStateException("A verification challenge has been sent recently");
+            throw new EmailVerificationResendTooSoonException();
         }
 
         challengeRepository.invalidateActiveByUserId(userId, now);

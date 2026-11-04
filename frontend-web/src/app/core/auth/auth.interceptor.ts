@@ -1,44 +1,43 @@
 import {HttpInterceptorFn} from '@angular/common/http';
 import {inject} from '@angular/core';
-import {AuthService} from '../../features/auth/auth.services';
+import {AuthService} from '../services/auth.services';
 import {API_CONFIG} from '../config/api.config';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
 
-  const token = authService.getAccessToken();
-  const isApiRequest = req.url.startsWith(API_CONFIG.baseUrl);
-
-  if (!isApiRequest) {
+  if (!req.url.startsWith(API_CONFIG.baseUrl)) {
     return next(req);
   }
 
-  const isLocalLogin = req.url.endsWith('/auth/login');
-  const isGoogleSession = req.url.endsWith('/auth/google/session');
-  const isGoogleComplete = req.url.endsWith('/auth/google/complete');
   const isGoogleEndpoint = req.url.includes('/auth/google');
 
   let request = req;
 
-  // Peticiones de google envian la cooke de sesion oauth
   if (!isGoogleEndpoint) {
     request = request.clone({
-      withCredentials: true,
-    })
+      withCredentials: true
+    });
   }
 
-  const requiresBearerToken =
-    !isLocalLogin &&
-    !isGoogleSession &&
-    !isGoogleComplete;
+  const isPublicEndpoint =
+    /\/auth\/(login|register|email-verification\/confirm|email-verification\/resend|google\/session|google\/complete|google\/link)(?:\?|$)/.test(req.url) ||
+    /\/currencies(?:\?|$)/.test(req.url);
 
-  if (token && requiresBearerToken) {
+  if (isPublicEndpoint) {
+    return next(request);
+  }
+
+  const token = authService.getTokenForRequest(req.url);
+
+  if (token) {
     request = request.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`
       }
     });
   }
 
   return next(request);
-}
+};
+

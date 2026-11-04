@@ -1,0 +1,70 @@
+
+<main class="verify-container">
+  <section class="verify-card">
+    <h1>Verifica tu correo</h1>
+
+    <p class="description">
+      Hemos enviado un código de verificación a:
+    </p>
+
+    <p class="email">{{ email }}</p>
+
+    <form (ngSubmit)="confirmCode()">
+      <label for="code">Código de verificación</label>
+
+      <input
+        id="code"
+        type="text"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="6"
+        pattern="[0-9]{6}"
+        placeholder="000000"
+        [formControl]="codeControl"
+        [class.invalid]="codeControl.touched && codeControl.invalid"
+        [attr.aria-invalid]="codeControl.touched && codeControl.invalid"
+      />
+
+      @if (codeControl.touched && codeControl.hasError('required')) {
+        <p class="field-error">Ingresa el código de verificación.</p>
+      }
+
+      @if (codeControl.touched && codeControl.hasError('pattern')) {
+        <p class="field-error">El código debe contener exactamente 6 dígitos.</p>
+      }
+
+      @if (errorMessage) {
+        <p class="error-message" role="alert">{{ errorMessage }}</p>
+      }
+
+      @if (successMessage) {
+        <p class="success-message" role="status">{{ successMessage }}</p>
+      }
+
+      <button type="submit" [disabled]="codeControl.invalid || isVerifying || isResending">
+        {{ isVerifying ? 'Verificando...' : 'Verificar correo' }}
+      </button>
+    </form>
+
+    <div class="resend-section">
+      <p>¿No recibiste el código?</p>
+
+      <button
+        type="button"
+        class="resend-button"
+        [disabled]="isResending || isVerifying"
+        (click)="resendCode()"
+      >
+        {{ isResending ? 'Enviando...' : 'Reenviar código' }}
+      </button>
+    </div>
+
+    <button
+      type="button"
+      class="back-button"
+      (click)="backToRegister()"
+    >
+      Volver al registro
+    </button>
+  </section>
+</main>

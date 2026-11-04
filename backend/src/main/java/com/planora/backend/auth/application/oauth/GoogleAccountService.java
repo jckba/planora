@@ -5,7 +5,9 @@ import com.planora.backend.auth.domain.User;
 import com.planora.backend.auth.repository.ExternalIdentityRepository;
 import com.planora.backend.auth.repository.UserRepository;
 import com.planora.backend.auth.security.oauth2.PendingGoogleIdentity;
+import com.planora.backend.common.exception.UserNotFoundException;
 import com.planora.backend.common.exception.oauth.GoogleIdentityConflictException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,11 +38,17 @@ public class GoogleAccountService {
         return userRepository.existsByEmail(normalizeEmail(email));
     }
 
+    @Transactional(readOnly = true)
+    public boolean isProfileComplete(UUID userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId))
+            .isProfileComplete();
+    }
+
     @Transactional
-    public UUID register(PendingGoogleIdentity google, GoogleRegistrationCommand command) {
+    public UUID register(PendingGoogleIdentity google) {
 
         String email = normalizeEmail(google.email());
-        String username = normalizeUsername(command.username());
 
         if (identityRepository.findUserIdByGoogleSubject(google.subject())
             .isPresent()) {
@@ -55,18 +63,11 @@ public class GoogleAccountService {
             );
         }
 
-        if (userRepository.existsByUsername(username)) {
-            throw new GoogleIdentityConflictException(
-                "Username is unavailable"
-            );
-        }
-
-        User user = User.createExternal(
-            username,
+        User user = User.createPendingExternal(
             email,
-            command.firstName().trim(),
-            command.lastName().trim(),
-            command.primaryCurrencyId()
+            google.firstName(),
+            google.lastName(),
+            google.authenticatedAt()
         );
 
         userRepository.save(user);

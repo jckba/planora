@@ -106,3 +106,23 @@ button:disabled {
   background: #f5f5f5;
 }
 
+.login-footer {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.login-footer p {
+  margin: 0;
+  color: #697386;
+  font-size: 13px;
+}
+
+.login-footer a {
+  color: #3157d5;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+}

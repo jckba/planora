@@ -18,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
@@ -35,8 +36,8 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     SecurityFilterChain apiSecurity(
-        HttpSecurity http
-    ) throws Exception {
+        HttpSecurity http,
+        JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
         http
             .securityMatcher("/api/**")
             .cors(Customizer.withDefaults())
@@ -61,6 +62,8 @@ public class SecurityConfig {
                     HttpMethod.POST,
                     "/api/auth/login",
                     "/api/auth/register",
+                    "/api/auth/email-verification/confirm",
+                    "/api/auth/email-verification/resend",
                     "/api/auth/google/session",
                     "/api/auth/google/complete"
                 ).permitAll()
@@ -69,10 +72,18 @@ public class SecurityConfig {
                     "/api/currencies",
                     "/api/currencies/**"
                 ).permitAll()
-                .anyRequest().authenticated()
+
+                .requestMatchers(
+                    HttpMethod.POST,
+                    "/api/auth/complete-registration"
+                ).hasAuthority("TOKEN_ONBOARDING")
+                .anyRequest().hasAuthority("TOKEN_ACCESS")
             )
             .oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(Customizer.withDefaults())
+                oauth2.jwt(jwt ->
+                    jwt.jwtAuthenticationConverter(
+                        jwtAuthenticationConverter
+                    ))
             );
 
         return http.build();

@@ -1,6 +1,5 @@
-package com.planora.backend.auth.api.dto;
+package com.planora.backend.auth.api.dto.login;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record LoginRequest(

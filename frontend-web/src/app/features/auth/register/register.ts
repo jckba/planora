@@ -1,12 +1,35 @@
 import {Component, inject} from '@angular/core';
-import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {AuthService} from "../auth.services";
-import {Router} from '@angular/router';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
+import {AuthService} from "../../../core/services/auth.services";
+import {Router, RouterLink} from '@angular/router';
 import {HttpErrorResponse} from '@angular/common/http';
+
+const passwordMatchValidator: ValidatorFn = (
+  control: AbstractControl,
+): ValidationErrors | null => {
+  const password = control.get('password')?.value;
+  const confirmPassword = control.get('confirmPassword')?.value;
+
+  if (!password || !confirmPassword) {
+    return null;
+  }
+
+  return password == confirmPassword ? null
+    : {passwordMismatch: true};
+
+};
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
@@ -16,27 +39,46 @@ export class RegisterComponent {
   private readonly router = inject(Router);
 
   readonly registerForm = new FormGroup({
-    firstName: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    lastName: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    email: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.email],
-    }),
-    password: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-  });
+      firstName: new FormControl('', {
+        nonNullable: true,
+        validators: [
+          Validators.required,
+          Validators.pattern(/^[a-zA-Z ]+$/),
+          Validators.maxLength(50),
+        ],
+      }),
+      lastName: new FormControl('', {
+        nonNullable: true,
+        validators: [
+          Validators.required,
+          Validators.pattern(/^[a-zA-Z ]+$/),
+          Validators.maxLength(50),
+        ],
+      }),
+      email: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required, Validators.email, Validators.maxLength(254)],
+      }),
+      password: new FormControl('', {
+        nonNullable: true,
+        validators: [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.maxLength(27),
+        ],
+      }),
+      confirmPassword: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+    },
+    {
+      validators: passwordMatchValidator,
+    }
+  );
 
   isSubmitting = false;
   errorMessage = '';
-  successMessage = '';
 
   onSubmit(): void {
     if (this.registerForm.invalid || this.isSubmitting) {
@@ -46,30 +88,52 @@ export class RegisterComponent {
 
     this.isSubmitting = true;
     this.errorMessage = '';
-    this.successMessage = '';
 
-    this.authService.register(this.registerForm.getRawValue())
-      .subscribe({
-        next: () => {
-          this.isSubmitting = false;
-          this.successMessage = 'Cuenta creada correctamente, redirigiendo a login...'
-          this.registerForm.reset();
-          setTimeout(() => {
-            this.router.navigate(['/auth/login']);
-          }, 1000);
-        },
-        error: (error: HttpErrorResponse) => {
-          this.isSubmitting = false;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+    } = this.registerForm.getRawValue();
 
-          if (error.status === 0) {
-            this.errorMessage = 'No se pudo conectar con el servidor.';
-          } else if (error.status === 409 || error.status === 400) {
-            this.errorMessage = "El correo electronico ya esta registrado o son invalidos."
-          }
-          else {
-            this.errorMessage = 'No se pudo registrar la cuenta. Intentelo nuevamente.'
-          }
-        },
-      });
+    this.authService.register({
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.trim().toLowerCase(),
+      password,
+    }).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+
+        const email = this.registerForm.controls.email.value.trim().toLowerCase();
+        this.authService.setPendingVerificationEmail(email);
+
+        void this.router.navigate(['/verify-email'], {
+          state: {
+            email: email.trim().toLowerCase(),
+          },
+        });
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isSubmitting = false;
+
+        if (error.status === 0) {
+          this.errorMessage = 'No se pudo conectar con el servidor. Comprueba tu conexion e intentalo nuevamente.';
+        } else if (error.status === 409) {
+          this.errorMessage = 'No se pudo completar el registro con ese correo.';
+        } else if (error.status === 400) {
+          this.errorMessage = 'Los datos enviados no son validos.';
+        } else {
+          this.errorMessage = 'No se pudo registrar la cuenta. Intentelo nuevamente.'
+        }
+      },
+    });
+  }
+
+  get passwordMismatch(): boolean {
+    return (
+      this.registerForm.hasError('passwordMismatch') &&
+      this.registerForm.controls.confirmPassword.touched
+    )
   }
 }

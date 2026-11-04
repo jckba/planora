@@ -1,6 +1,6 @@
 package com.planora.backend.auth.security;
 
-import com.planora.backend.auth.application.user.EmailVerificationEmailSender;
+import com.planora.backend.auth.application.email.EmailVerificationEmailSender;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
