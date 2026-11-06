@@ -2,7 +2,7 @@
 
 Backend de finanzas personales para organizar cuentas, categorías, gastos y compras planificadas o realizadas. Construido con Java y Spring Boot, con persistencia SQL mediante jOOQ y PostgreSQL.
 
-**Estado: en desarrollo.** Existen los casos de uso y endpoints principales, autenticación de peticiones posteriores al login, pero los movimientos de saldo y la funcionalidad de metas de ahorro todavía están pendientes. No es una versión lista para producción.
+** 🚀 Estado: en desarrollo.** Existen los casos de uso y endpoints principales, autenticación de peticiones posteriores al login, pero los movimientos de saldo y la funcionalidad de metas de ahorro todavía están pendientes. No es una versión lista para producción.
 
 ## Funcionalidades implementadas
 
