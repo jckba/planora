@@ -39,6 +39,40 @@ public class User {
         this.version = version;
     }
 
+    public void updateFirstAndLastName(String firstName, String lastName, Instant now) {
+
+        Objects.requireNonNull(firstName, "firstName cannot be null");
+        Objects.requireNonNull(lastName, "lastName cannot be null");
+        Objects.requireNonNull(now, "now cannot be null");
+
+        String normalizedFirstName = firstName.trim();
+        String normalizedLastName = lastName.trim();
+
+        if (normalizedFirstName.isBlank() || normalizedLastName.isBlank()) {
+            throw new IllegalArgumentException("Personal data cannot be blank");
+        }
+
+        if (normalizedFirstName.length() > 100 || normalizedLastName.length() > 100) {
+            throw new IllegalArgumentException("Personal data cannot be longer than 100 characters");
+        }
+
+        if (isProfileComplete()) {
+            throw new IllegalStateException("Profile is already complete");
+        }
+
+        boolean changed =
+            !Objects.equals(this.firstName, normalizedFirstName) ||
+            !Objects.equals(this.lastName, normalizedLastName);
+
+        if (!changed) {
+            return;
+        }
+
+        this.firstName = normalizedFirstName;
+        this.lastName = normalizedLastName;
+        this.updatedAt = now;
+    }
+
     public boolean isEmailVerified() {
         return emailVerifiedAt != null;
     }
@@ -170,31 +204,6 @@ public class User {
             lastName,
             null,
             Objects.requireNonNull(emailVerifiedAt),
-            null,
-            now,
-            now,
-            0
-        );
-    }
-
-    public static User createExternal(
-        String username,
-        String email,
-        String firstName,
-        String lastName,
-        Short primaryCurrencyId
-    ) {
-        Instant now = Instant.now();
-
-        return new User(
-            UUID.randomUUID(),
-            username,
-            email,
-            null,
-            firstName,
-            lastName,
-            primaryCurrencyId,
-            null,
             null,
             now,
             now,

@@ -1,0 +1,100 @@
+
+<div class="registration-container">
+  <section class="registration-card">
+    <h1>Completa tu perfil</h1>
+
+    <p>
+      Configura tu nombre de usuario y selecciona tu moneda principal
+      para comenzar a utilizar Planora.
+    </p>
+
+    <form
+      [formGroup]="registrationForm"
+      (ngSubmit)="onSubmit()"
+    >
+      <div class="form-field">
+        <label for="username">Nombre de usuario</label>
+
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          autocomplete="username"
+          placeholder="Ej. ana.garcia"
+          maxlength="20"
+        />
+
+        @if (
+          registrationForm.controls.username.touched &&
+          registrationForm.controls.username.invalid
+          ) {
+          <small class="error-message">
+            Usa entre 3 y 20 caracteres: letras, números,
+            puntos, guiones o guiones bajos.
+          </small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="currency">Moneda principal</label>
+
+        <select
+          id="currency"
+          formControlName="primaryCurrencyId"
+        >
+          <option [ngValue]="null" disabled>
+            Selecciona una moneda
+          </option>
+
+          @for (currency of currencies; track currency.id) {
+            <option [ngValue]="currency.id">
+              {{ currency.code }} — {{ currency.name }}
+              ({{ currency.symbol }})
+            </option>
+          }
+        </select>
+
+        @if (isLoadingCurrencies) {
+          <small>Cargando monedas...</small>
+        }
+
+        @if (
+          registrationForm.controls.primaryCurrencyId.touched &&
+          registrationForm.controls.primaryCurrencyId.invalid
+          ) {
+          <small class="error-message">
+            Selecciona una moneda principal.
+          </small>
+        }
+      </div>
+
+      @if (errorMessage) {
+        <p class="error-message" role="alert">
+          {{ errorMessage }}
+        </p>
+      }
+
+      @if (successMessage) {
+        <p class="success-message" role="status">
+          {{ successMessage }}
+        </p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="
+          isSubmitting ||
+          isLoadingCurrencies ||
+          currencies.length === 0 ||
+          !!successMessage
+        "
+      >
+        {{
+          isSubmitting
+            ? 'Completando perfil...'
+            : 'Continuar'
+        }}
+      </button>
+    </form>
+  </section>
+</div>

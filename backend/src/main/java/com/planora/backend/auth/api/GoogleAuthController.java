@@ -1,10 +1,8 @@
 package com.planora.backend.auth.api;
 
-import com.planora.backend.auth.api.dto.google.GoogleRegistrationRequest;
 import com.planora.backend.auth.api.dto.google.GoogleSessionResponse;
 import com.planora.backend.auth.api.dto.login.LoginResponse;
 import com.planora.backend.auth.application.oauth.GoogleAccountService;
-import com.planora.backend.auth.application.oauth.GoogleRegistrationCommand;
 import com.planora.backend.auth.security.oauth2.GoogleAuthProperties;
 import com.planora.backend.auth.security.oauth2.PendingGoogleIdentity;
 import com.planora.backend.common.security.CurrentUser;
@@ -14,10 +12,8 @@ import com.planora.backend.common.security.jwt.onboarding.IssuedOnBoardingToken;
 import com.planora.backend.common.security.jwt.onboarding.OnBoardingTokenIssuer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -61,9 +57,9 @@ public class GoogleAuthController {
 
             return new GoogleSessionResponse(
                 "AUTHENTICATED",
-                null,
-                null,
-                null,
+                pending.email(),
+                pending.firstName(),
+                pending.lastName(),
                 login
             );
         }

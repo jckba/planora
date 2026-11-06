@@ -10,18 +10,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  const isGoogleEndpoint = req.url.includes('/auth/google');
-
-  let request = req;
-
-  if (!isGoogleEndpoint) {
-    request = request.clone({
-      withCredentials: true
-    });
-  }
+  let request = req.clone({
+    withCredentials: true
+  })
 
   const isPublicEndpoint =
-    /\/auth\/(login|register|email-verification\/confirm|email-verification\/resend|google\/session|google\/complete|google\/link)(?:\?|$)/.test(req.url) ||
+    /\/auth\/(login|register|email-verification\/confirm|email-verification\/resend|google\/session)(?:\?|$)/.test(req.url) ||
     /\/currencies(?:\?|$)/.test(req.url);
 
   if (isPublicEndpoint) {

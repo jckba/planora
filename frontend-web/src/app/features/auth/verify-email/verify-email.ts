@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, ChangeDetectorRef, inject} from '@angular/core';
 import {FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AuthService} from '../../../core/services/auth.services';
 import {Router} from '@angular/router';
@@ -12,6 +12,7 @@ import {finalize} from 'rxjs';
   styleUrl: './verify-email.css',
 })
 export class VerifyEmailComponent {
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
@@ -53,16 +54,15 @@ export class VerifyEmailComponent {
     ).pipe(
       finalize(() => {
         this.isVerifying = false;
+        this.cdr.markForCheck();
       })
     ).subscribe({
       next: () => {
-        this.isVerifying = false;
         this.authService.clearPendingVerificationEmail();
 
         void this.router.navigate(['/complete-registration']);
       },
       error: (error: HttpErrorResponse) => {
-        this.isVerifying = false;
 
         if (error.status === 0) {
           this.errorMessage = 'No se pudo conectar con el servidor.';
@@ -89,6 +89,7 @@ export class VerifyEmailComponent {
     this.authService.resendEmailVerification(this.email).pipe(
       finalize(() => {
         this.isResending = false;
+        this.cdr.markForCheck();
       })
     ).subscribe({
       next: () => {

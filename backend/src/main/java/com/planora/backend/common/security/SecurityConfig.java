@@ -64,8 +64,7 @@ public class SecurityConfig {
                     "/api/auth/register",
                     "/api/auth/email-verification/confirm",
                     "/api/auth/email-verification/resend",
-                    "/api/auth/google/session",
-                    "/api/auth/google/complete"
+                    "/api/auth/google/session"
                 ).permitAll()
                 .requestMatchers(
                     HttpMethod.GET,

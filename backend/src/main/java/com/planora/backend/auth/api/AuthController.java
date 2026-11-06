@@ -74,7 +74,9 @@ public class AuthController {
         completeProfileUseCase.execute(
             new CompleteProfileCommand(
                 request.username(),
-                request.primaryCurrencyId()
+                request.primaryCurrencyId(),
+                request.firstName(),
+                request.lastName()
             )
         );
 

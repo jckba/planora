@@ -11,10 +11,10 @@ public record EmailVerificationOutcome(
         Objects.requireNonNull(result, "Verification result cannot be null");
 
         if (result == EmailVerificationResult.VERIFIED && userId == null) {
-            throw new IllegalArgumentException("User ID is requires for successful verificaton");
+            throw new IllegalArgumentException("User ID is requires for successful verification");
         }
 
-        if (result != EmailVerificationResult.ALREADY_VERIFIED && userId != null) {
+        if (result != EmailVerificationResult.VERIFIED && userId != null) {
             throw new IllegalArgumentException("User Id must only be provided for successful verification");
         }
     }

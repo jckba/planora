@@ -36,20 +36,42 @@ export class GoogleCallbackComponent implements OnInit {
               return;
             }
 
-            this.authService.getCurrentUser().subscribe({
-                next: (user) => {
+            if (this.authService.hasOnboardingToken()) {
+              this.isLoading = false;
+
+              void this.router.navigate(['/auth/google/register'], {
+                state: {
+                  email: response.email,
+                  firstName: response.firstName,
+                  lastName: response.lastName,
+                },
+              });
+              return;
+            }
+
+            if (this.authService.hasAccessToken()) {
+              this.authService.getCurrentUser().subscribe({
+                next: () => {
                   this.isLoading = false;
-                  this.message = `Session iniciada correctamente. Usuario: ${user.userId}`;
+                  //TODO cambiar a dashboard cuando se tenga
+                  void this.router.navigate(['/login']);
                 },
                 error: () => {
                   this.authService.clearSession();
                   this.showError('No se pudo validar la sesion. Intenta iniciar sesion de nuevo.');
                 },
-              }
-            );
+              });
+              return;
+            }
+            this.showError("El servidor devolvio una sesion sin credenciales validas.")
             return;
 
           case 'REGISTRATION_REQUIRED':
+            if (!this.authService.hasOnboardingToken()) {
+              this.showError("El servidor devolvio una sesion sin credenciales validas.")
+              return;
+            }
+
             this.isLoading = false;
             void this.router.navigate(
               ['/auth/google/register'],

@@ -26,6 +26,8 @@ export interface EmailVerificationConfirmationResponse {
 export interface CompleteRegistrationRequest {
   username: string;
   primaryCurrencyId: number;
+  firstName?: string;
+  lastName?: string;
 }
 
 

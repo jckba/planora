@@ -1,6 +1,5 @@
-package com.planora.backend.auth.security;
+package com.planora.backend.auth.application.email;
 
-import com.planora.backend.auth.application.email.EmailVerificationEmailSender;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -5,6 +5,10 @@ import { GoogleCallbackComponent} from './features/auth/google-callback/google-c
 import { GoogleRegistrationComponent } from './features/auth/google-registration/google-registration';
 import {VerifyEmailComponent} from './features/auth/verify-email/verify-email';
 
+import {authGuard} from './core/guards/auth.guard';
+import {onboardingGuard} from './core/guards/onboarding.guard';
+import {CompleteRegistrationComponent} from './features/auth/complete-registration/complete-registration';
+
 export const routes: Routes = [
   {
     path: 'login',
@@ -27,8 +31,17 @@ export const routes: Routes = [
     component: GoogleRegistrationComponent
   },
   {
+    path: 'complete-registration',
+    component: CompleteRegistrationComponent,
+    canActivate: [onboardingGuard]
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'
+  },
+  {
+    path: '**',
+    redirectTo: 'login'
   }
 ];

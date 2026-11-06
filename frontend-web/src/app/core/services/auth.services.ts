@@ -7,7 +7,7 @@ import {
   UserRegistrationRequest
 } from "../../features/auth/auth.models"
 import {inject, Injectable} from '@angular/core';
-import {HttpClient, HttpStatusCode} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {API_CONFIG} from '../config/api.config';
 import {CurrentUser} from "../../features/auth/current-user.model";
 import {Currency} from "../../features/auth/currency.model";
@@ -51,7 +51,7 @@ export class AuthService {
     if (expectedTokenUse && tokenUse !== expectedTokenUse) {
       this.clearSession();
       throw new Error(
-        `Se esperaba un token ${expectedTokenUse}, pero se recibio ${token}`);
+        `Se esperaba un token ${expectedTokenUse}, pero se recibió ${tokenUse}`);
     }
 
     if (!Number.isFinite(expiresIn) || expiresIn <= 0) {
@@ -314,19 +314,7 @@ export class AuthService {
   }
 
   completeGoogleRegistration(request: GoogleRegistrationRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(
-      `${API_CONFIG.baseUrl}/auth/google/complete`,
-      request,
-      {withCredentials: true},
-    ).pipe(
-      tap(response => {
-        this.storeCredential(
-          response.token,
-          response.expiresIn,
-          'ACCESS'
-        );
-      })
-    );
+    return this.completeRegistration(request);
   }
 
   linkGoogleAccount(): Observable<LoginResponse> {
@@ -444,7 +432,7 @@ export class AuthService {
             typeof currency.id === 'number' &&
             typeof currency.code === 'string' &&
             typeof currency.name === 'string' &&
-            typeof currency.symnol === 'string' &&
+            typeof currency.symbol === 'string' &&
             typeof currency.decimalPlaces === 'number'
         )
       ) {

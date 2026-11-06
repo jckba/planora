@@ -11,6 +11,7 @@ export const onboardingGuard: CanActivateFn = () => {
   }
 
   if (authService.hasAccessToken()) {
+    //TODO redirigir a ruta principal cuando exista
     return router.createUrlTree(['/login']);
   }
 
