@@ -8,6 +8,7 @@ import {VerifyEmailComponent} from './features/auth/verify-email/verify-email';
 import {authGuard} from './core/guards/auth.guard';
 import {onboardingGuard} from './core/guards/onboarding.guard';
 import {CompleteRegistrationComponent} from './features/auth/complete-registration/complete-registration';
+import {DashboardComponent} from './features/dashboard/dashboard';
 
 export const routes: Routes = [
   {
@@ -36,6 +37,11 @@ export const routes: Routes = [
     canActivate: [onboardingGuard]
   },
   {
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [authGuard]
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'
@@ -43,5 +49,6 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: 'login'
-  }
+  },
+
 ];

@@ -5,12 +5,15 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {Location} from '@angular/common';
 import {CompleteRegistrationRequest} from '../auth.models';
 import {HttpErrorResponse} from '@angular/common/http';
-
+import {Router} from '@angular/router';
 
 interface CompleteRegistrationState {
   registrationSource?: 'GOOGLE' | 'LOCAL';
+  email?: string | null;
   firstName?: string | null;
   lastName?: string | null;
+  username?: string;
+  primaryCurrencyId?: number | null;
 }
 
 @Component({
@@ -25,11 +28,13 @@ export class CompleteRegistrationComponent implements OnInit {
 
   private readonly authService = inject(AuthService);
   private readonly location = inject(Location);
+  private readonly router = inject(Router);
 
   registrationSource: 'GOOGLE' | 'LOCAL' = 'LOCAL';
 
   firstName = '';
   lastName = '';
+  email = '';
 
   currencies: Currency[] = [];
   isLoadingCurrencies = true;
@@ -43,7 +48,7 @@ export class CompleteRegistrationComponent implements OnInit {
       nonNullable: true,
       validators: [
         Validators.required,
-        Validators.pattern(/^[a-zA-Z0-9._-]{3,20}$/)
+        Validators.pattern(/^(?![0-9])[a-zA-Z0-9._-]{5,15}$/)
       ]
     }),
 
@@ -55,12 +60,18 @@ export class CompleteRegistrationComponent implements OnInit {
 
     this.registrationSource = state.registrationSource ?? 'LOCAL';
 
+    this.email = state.email?.trim() ?? '';
     this.firstName = state.firstName?.trim() ?? '';
     this.lastName = state.lastName?.trim() ?? '';
 
+    this.registrationForm.patchValue({
+      username: state.username ?? '',
+      primaryCurrencyId: state.primaryCurrencyId ?? null
+      });
+
     if (
       this.registrationSource === 'GOOGLE' &&
-      (!this.firstName || !this.lastName)
+      (!this.email ||!this.firstName || !this.lastName)
     ) {
       this.errorMessage = "No se encontraron los nombres del registro de Google. Regrese al paso anterior.";
       this.isLoadingCurrencies = false;
@@ -121,6 +132,7 @@ export class CompleteRegistrationComponent implements OnInit {
         this.isSubmitting = false;
         this.successMessage =
           'Tu perfil se completó correctamente. Ya puedes acceder a Planora.';
+        void this.router.navigate(['/dashboard']);
       },
       error: (error: HttpErrorResponse) => {
         this.isSubmitting = false;
@@ -141,4 +153,23 @@ export class CompleteRegistrationComponent implements OnInit {
       }
     });
   }
+
+  onBack(): void {
+    if (this.registrationSource !=='GOOGLE') {
+      return;
+    }
+
+    const formValue = this.registrationForm.getRawValue();
+
+    void this.router.navigate(['/auth/google/register'], {
+      state: {
+        email: this.email,
+        firstName: this.firstName,
+        lastName: this.lastName,
+        username: formValue.username,
+        primaryCurrencyId: formValue.primaryCurrencyId,
+      },
+    });
+  }
+
 }

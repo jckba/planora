@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, signal} from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -11,6 +11,7 @@ import {
 import {AuthService} from "../../../core/services/auth.services";
 import {Router, RouterLink} from '@angular/router';
 import {HttpErrorResponse} from '@angular/common/http';
+import {finalize} from 'rxjs';
 
 const passwordMatchValidator: ValidatorFn = (
   control: AbstractControl,
@@ -43,7 +44,7 @@ export class RegisterComponent {
         nonNullable: true,
         validators: [
           Validators.required,
-          Validators.pattern(/^[a-zA-Z ]+$/),
+          Validators.pattern(/^(?!\s*$)[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ' -]+$/),
           Validators.maxLength(50),
         ],
       }),
@@ -51,7 +52,7 @@ export class RegisterComponent {
         nonNullable: true,
         validators: [
           Validators.required,
-          Validators.pattern(/^[a-zA-Z ]+$/),
+          Validators.pattern(/^(?!\s*$)[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ' -]+$/),
           Validators.maxLength(50),
         ],
       }),
@@ -77,17 +78,17 @@ export class RegisterComponent {
     }
   );
 
-  isSubmitting = false;
-  errorMessage = '';
+  isSubmitting = signal(false);
+  errorMessage = signal<string | null>(null);
 
   onSubmit(): void {
-    if (this.registerForm.invalid || this.isSubmitting) {
+    if (this.registerForm.invalid || this.isSubmitting()) {
       this.registerForm.markAllAsTouched();
       return;
     }
 
-    this.isSubmitting = true;
-    this.errorMessage = '';
+    this.isSubmitting.set(true);
+    this.errorMessage.set(null);
 
     const {
       firstName,
@@ -101,33 +102,37 @@ export class RegisterComponent {
       lastName: lastName.trim(),
       email: email.trim().toLowerCase(),
       password,
-    }).subscribe({
-      next: () => {
-        this.isSubmitting = false;
+    })
+      .pipe(
+        finalize(() => {
+          this.isSubmitting.set(false);
+        })
+      )
+      .subscribe({
+        next: () => {
+          const email = this.registerForm.controls.email.value.trim().toLowerCase();
+          this.authService.setPendingVerificationEmail(email);
 
-        const email = this.registerForm.controls.email.value.trim().toLowerCase();
-        this.authService.setPendingVerificationEmail(email);
+          void this.router.navigate(['/verify-email'], {
+            state: {
+              email: email.trim().toLowerCase(),
+            },
+          });
+        },
+        error: (error: HttpErrorResponse) => {
+          this.isSubmitting.set(false);
 
-        void this.router.navigate(['/verify-email'], {
-          state: {
-            email: email.trim().toLowerCase(),
-          },
-        });
-      },
-      error: (error: HttpErrorResponse) => {
-        this.isSubmitting = false;
-
-        if (error.status === 0) {
-          this.errorMessage = 'No se pudo conectar con el servidor. Comprueba tu conexion e intentalo nuevamente.';
-        } else if (error.status === 409) {
-          this.errorMessage = 'No se pudo completar el registro con ese correo.';
-        } else if (error.status === 400) {
-          this.errorMessage = 'Los datos enviados no son validos.';
-        } else {
-          this.errorMessage = 'No se pudo registrar la cuenta. Intentelo nuevamente.'
-        }
-      },
-    });
+          if (error.status === 0) {
+            this.errorMessage.set('No se pudo conectar con el servidor. Comprueba tu conexion e intentalo nuevamente.');
+          } else if (error.status === 409) {
+            this.errorMessage.set('No se pudo completar el registro con el correo proporcionado.');
+          } else if (error.status === 400) {
+            this.errorMessage.set('Los datos enviados no son validos.');
+          } else {
+            this.errorMessage.set('No se pudo registrar la cuenta. Intentelo nuevamente.');
+          }
+        },
+      });
   }
 
   get passwordMismatch(): boolean {

@@ -7,6 +7,14 @@
       Configura tu nombre de usuario y selecciona tu moneda principal
       para comenzar a utilizar Planora.
     </p>
+    @if (registrationSource === 'GOOGLE') {
+      <button class="back-to-personal-data"
+              type="button"
+              (click)="onBack()"
+              [disabled]="isSubmitting">
+        Volver a datos personales
+      </button>
+    }
 
     <form
       [formGroup]="registrationForm"
@@ -84,6 +92,7 @@
         type="submit"
         [disabled]="
           isSubmitting ||
+          registrationForm.invalid ||
           isLoadingCurrencies ||
           currencies.length === 0 ||
           !!successMessage

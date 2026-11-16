@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GoogleRegistration } from './google-registration';
+import { GoogleRegistrationComponent as GoogleRegistration } from './google-registration';
 
 describe('GoogleRegistration', () => {
   let component: GoogleRegistration;

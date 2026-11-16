@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class JwtPurposeValidator implements OAuth2TokenValidator<Jwt> {
 
-    private static final String TOKEN_USE_CLAIM = "toke_use";
+    private static final String TOKEN_USE_CLAIM = "token_use";
 
     private static final Set<String> ALLOWED_PURPOSES =
         Set.of(JwtTokenPurpose.ACCESS.name(), JwtTokenPurpose.ONBOARDING.name());

@@ -35,11 +35,11 @@ spring:
     password: ${PLANORA_SMTP_PASSWORD:password}
     properties:
       mail:
-        debug: true
+        debug: false
         smtp:
-          auth: false
+          auth: true
           starttls:
-            enable: false
+            enable: true
             required: true
           connectiontimeout: 5000
           timeout: 10000
@@ -74,4 +74,9 @@ server:
         secure: false
         http-only: true
         same-site: lax
-#debug: true
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2.server.resource: DEBUG

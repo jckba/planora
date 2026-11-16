@@ -1,17 +1,14 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {Location} from '@angular/common';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {AuthService} from '../../../core/services/auth.services';
-import {Currency} from '../currency.model';
-import {HttpErrorResponse} from '@angular/common/http';
 import {Router} from '@angular/router';
-import {last} from 'rxjs';
-
 
 interface GoogleRegistrationState {
   email?: string | null;
   firstName?: string | null;
   lastName?: string | null;
+  username?: string;
+  primaryCurrencyId?: number | null;
 }
 
 @Component({
@@ -21,21 +18,26 @@ interface GoogleRegistrationState {
   styleUrl: './google-registration.css',
 })
 export class GoogleRegistrationComponent implements OnInit {
-  private readonly authService = inject(AuthService);
   private readonly location = inject(Location);
   private readonly router = inject(Router);
 
   email = '';
   errorMessage = '';
+  username = '';
+  primaryCurrencyId: number | null = null;
 
   readonly registrationForm = new FormGroup({
     firstName: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(100)],
+      validators: [Validators.required,
+        Validators.pattern(/^(?!\s*$)[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ' -]+$/),
+        Validators.maxLength(50)],
     }),
     lastName: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(100)],
+      validators: [Validators.required,
+        Validators.pattern(/^(?!\s*$)[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ' -]+$/),
+        Validators.maxLength(50)],
     }),
   });
 
@@ -48,6 +50,8 @@ export class GoogleRegistrationComponent implements OnInit {
     }
 
     this.email = state.email;
+    this.username = state.username ?? '';
+    this.primaryCurrencyId = state.primaryCurrencyId ?? null;
 
     this.registrationForm.patchValue({
       firstName: state.firstName ?? '',
@@ -65,9 +69,12 @@ export class GoogleRegistrationComponent implements OnInit {
 
     void this.router.navigate(['/complete-registration'], {
       state: {
+        registrationSource: 'GOOGLE',
         email: this.email,
         firstName: firstName.trim(),
         lastName: lastName.trim(),
+        username: this.username,
+        primaryCurrencyId: this.primaryCurrencyId,
       },
     });
   }

@@ -33,20 +33,20 @@
         }
       </div>
 
-      @if (errorMessage) {
+      @if (errorMessage()) {
         <p class="error-message" role="alert">
-          {{ errorMessage }}
+          {{ errorMessage() }}
         </p>
       }
 
-      @if (successMessage) {
+      @if (successMessage()) {
         <p role="status">
-          {{ successMessage }}
+          {{ successMessage() }}
         </p>
       }
 
-      <button type="submit" [disabled]="isSubmitting">
-        {{ isSubmitting ? 'Iniciando Sesión...' : 'Iniciar Sesión' }}
+      <button type="submit" [disabled]="isSubmitting() || loginForm.invalid">
+        {{ isSubmitting() ? 'Iniciando Sesión...' : 'Iniciar Sesión' }}
       </button>
     </form>
 

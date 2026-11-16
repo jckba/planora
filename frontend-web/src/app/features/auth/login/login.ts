@@ -1,14 +1,15 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, signal} from '@angular/core';
 import {ReactiveFormsModule, FormControl, FormGroup, Validators} from '@angular/forms';
 import {HttpErrorResponse} from '@angular/common/http';
 import {AuthService} from '../../../core/services/auth.services';
-import {switchMap} from 'rxjs';
+import {finalize, switchMap} from 'rxjs';
 
 import {API_CONFIG} from '../../../core/config/api.config';
 import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css',
@@ -28,39 +29,47 @@ export class LoginComponent {
     }),
   });
 
-  isSubmitting = false;
-  errorMessage = '';
-  successMessage = '';
+  isSubmitting = signal(false);
+  errorMessage = signal<string | null>(null);
+  successMessage = signal<string | null>(null);
 
   onSubmit(): void {
-    if (this.loginForm.invalid || this.isSubmitting) {
+    if (this.loginForm.invalid || this.isSubmitting()) {
       this.loginForm.markAllAsTouched();
       return;
     }
 
-    this.isSubmitting = true;
-    this.errorMessage = '';
-    this.successMessage = '';
+    const credentials = this.loginForm.getRawValue();
 
-    this.authService.login(this.loginForm.getRawValue())
+    this.isSubmitting.set(true);
+    this.loginForm.controls.identifier.disable();
+    this.loginForm.controls.password.disable();
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
+
+    this.authService.login(credentials)
       .pipe(
         switchMap(() => this.authService.getCurrentUser()),
+        finalize(() => {
+          this.isSubmitting.set(false);
+          this.loginForm.controls.identifier.enable();
+          this.loginForm.controls.password.enable();
+        }),
       )
       .subscribe({
         next: (user) => {
-          this.isSubmitting = false;
-          this.successMessage = `Sesión autenticada. ID de usuario: ${user.userId}`;
+          this.successMessage.set(`Sesión autenticada. ID de usuario: ${user.userId}`);
           this.loginForm.controls.password.reset('');
         },
         error: (error: HttpErrorResponse) => {
-          this.isSubmitting = false;
+          this.isSubmitting.set(false);
 
           if (error.status === 401) {
-            this.errorMessage = 'Credenciales incorrectas.';
+            this.errorMessage.set('Credenciales incorrectas.');
           } else if (error.status === 0) {
-            this.errorMessage = 'No se pudo conectar con el servidor.';
+            this.errorMessage.set('No se pudo conectar con el servidor.');
           } else {
-            this.errorMessage = 'No se pudo iniciar sesión. Inténtelo nuevamente.';
+            this.errorMessage.set('No se pudo iniciar sesión. Inténtelo nuevamente.');
           }
         },
       });

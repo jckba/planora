@@ -53,8 +53,7 @@ export class GoogleCallbackComponent implements OnInit {
               this.authService.getCurrentUser().subscribe({
                 next: () => {
                   this.isLoading = false;
-                  //TODO cambiar a dashboard cuando se tenga
-                  void this.router.navigate(['/login']);
+                  void this.router.navigate(['/dashboard']);
                 },
                 error: () => {
                   this.authService.clearSession();

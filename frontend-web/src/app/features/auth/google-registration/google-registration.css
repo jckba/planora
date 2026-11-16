@@ -1,4 +1,3 @@
-
 :host {
   display: block;
   min-height: 100vh;
@@ -10,6 +9,7 @@
   align-items: center;
   min-height: 100vh;
   padding: 24px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .registration-card {
@@ -50,8 +50,10 @@ input[readonly] {
 button {
   width: 100%;
   padding: 12px;
-  border: 0;
+  border: none;
   border-radius: 6px;
+  background-color: #2563eb;
+  color: #ffffff;
   cursor: pointer;
   font: inherit;
 }

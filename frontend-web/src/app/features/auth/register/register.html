@@ -167,18 +167,18 @@
         }
       </div>
 
-      @if (errorMessage) {
+      @if (errorMessage()) {
         <div class="message error-message" role="alert">
-          {{ errorMessage }}
+          {{ errorMessage() }}
         </div>
       }
 
       <button
         type="submit"
         class="submit-button"
-        [disabled]="isSubmitting"
+        [disabled]="isSubmitting()"
       >
-        @if (isSubmitting) {
+        @if (isSubmitting()) {
           <span>Enviando...</span>
         } @else {
           <span>Crear cuenta</span>

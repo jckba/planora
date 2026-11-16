@@ -13,6 +13,7 @@
         type="email"
         [value]="email"
         readonly
+        disabled
       />
     </div>
 
@@ -35,7 +36,7 @@
           registrationForm.controls.firstName.invalid
           ) {
           <small class="error-message">
-            El nombre es obligatorio y admite hasta 100 caracteres.
+            Por favor, ingrese un nombre valido
           </small>
         }
       </div>
@@ -55,7 +56,7 @@
           registrationForm.controls.lastName.invalid
           ) {
           <small class="error-message">
-            Los apellidos son obligatorios y admiten hasta 100 caracteres.
+            Por favor, ingrese un apellido valido
           </small>
         }
       </div>
